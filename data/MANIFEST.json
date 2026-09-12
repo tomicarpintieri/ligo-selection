@@ -1,0 +1,26 @@
+{
+  "source": "https://raw.githubusercontent.com/matiaszaldarriaga/GW-AI-course/main/day2/data/",
+  "note": "The four arrays day 2 of the course ships. They are public, so this repository fetches them instead of carrying 40 MB of binary. Hashes taken 2026-09-11 from the copy in the course tree and confirmed against the same files served over HTTPS.",
+  "files": {
+    "H1_gw150914.npz": {
+      "sha256": "437dc99099ebd92b1736cba732ba2304690590e6a4eb82e17b09c147b8ae8d99",
+      "bytes": 30984836,
+      "what": "2048 s of LIGO Hanford strain at 4096 Hz around GPS 1126259462.4, plus fs, t0 and the detector name."
+    },
+    "L1_gw150914.npz": {
+      "sha256": "55789cae325fc3221cb7c0168ceefb5f25752aefad70e5505198433d373cb08d",
+      "bytes": 7108430,
+      "what": "512 s of LIGO Livingston strain, same format. Shorter than H1 on purpose: the PSD has to be estimated from what each detector actually gives you."
+    },
+    "imr_gw150914.npz": {
+      "sha256": "c5425095dd58467bb20ff3d832ae4a6b7756b57883174d72af2998a149e70d7a",
+      "bytes": 1325349,
+      "what": "Two frequency-domain waveforms from LAL for m1=38.8, m2=33.35 Msun at 400 Mpc, face-on, from 20 Hz on a 32 s / 4096 Hz grid: h_imr (IMRPhenomD, with merger and ringdown) and h_taylorf2_lal (TaylorF2, inspiral only). The second is the reference our own waveform is measured against."
+    },
+    "psd_reference.npz": {
+      "sha256": "cc5747cdc00afb0f0bec30051a47bde9f3abbb43dd8d1b0c4fceecb9629023cc",
+      "bytes": 580932,
+      "what": "gwpy's median-averaged Welch PSD on the same H1 data -- the library answer our hand-written Welch is checked against -- and the Advanced LIGO design curve."
+    }
+  }
+}

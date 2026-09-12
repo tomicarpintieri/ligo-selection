@@ -1,0 +1,17 @@
+# The strain data is fetched, not committed: 40 MB, and it is already public.
+# scripts/fetch_data.py downloads it and checks it against data/MANIFEST.json.
+data/*.npz
+
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Written by the provenance hook, per session.
+.claude/.session-start
+.claude/hooks/.attempts
+
+# Working scratch. Anything that has to survive belongs in results.json.
+.tmp/
+logs/*
+!logs/.gitkeep

@@ -1,0 +1,18 @@
+# Built and verified on Python 3.12.10, Windows 11.
+# Pinned to the versions every number in results.json was measured with.
+numpy==2.5.2
+scipy==1.18.1
+matplotlib==3.11.1
+sympy==1.14.0
+
+# The checks. `pytest -q` is the one command that says whether this repo is sane.
+pytest==9.1.1
+
+# Required by .claude/hooks/provenance_gate.py, which reads provenance/claims.yaml.
+# Without it the gate reports a parse failure that is not real.
+PyYAML==6.0.3
+
+# Used ONLY by tests/test_05_network.py, to check our hand-written sidereal time
+# against a library. Tests that need it skip cleanly when it is absent, so this
+# line can be deleted without breaking anything else.
+astropy==8.0.1

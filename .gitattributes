@@ -1,0 +1,6 @@
+# One line ending everywhere. The repository is meant to be cloned on a machine
+# that is not this one.
+* text=auto eol=lf
+*.png binary
+*.gif binary
+*.npz binary

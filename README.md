@@ -1,0 +1,99 @@
+# What a gravitational-wave detector network cannot see
+
+LIGO does not detect every black-hole merger that happens. It misses the distant
+ones, the ones arriving from directions where the instrument is less sensitive,
+and the ones that are badly oriented. The catalogue is therefore **not** a
+representative sample of the universe: it is tilted towards whatever the
+instrument finds easy to hear, and the tilt sits on exactly the quantities
+astronomers use to work out where black-hole binaries come from.
+
+This repository measures that tilt by injection: we build mergers with known
+parameters, put them into real LIGO data, run the same search over them, and
+count what comes back. Because we know what went in, we know exactly what was
+lost.
+
+The field usually estimates the same thing with a closed-form approximation --
+one detector, optimal orientation, well-behaved noise. **The question here is
+how far that approximation is from the answer**, and in which direction it moves
+the astrophysical conclusion.
+
+## Why this is not a repeat of the course it came out of
+
+The course this grew from states its own boundary. Day 2, on a slide of its own:
+
+> *No antenna patterns. No sky localisation. We do not do a coherent
+> multi-detector search — for simplicity. Every number today is computed from a
+> single interferometer.*
+
+and day 3 closes on:
+
+> *the distortion is computable from first principles right up to the point
+> where it isn't — and past that point the honest move is an injection campaign,
+> which is why everybody runs one.*
+
+Nobody ran one. This is that campaign.
+
+## Run it
+
+```bash
+git clone <this repo> && cd ligo-selection
+python -m venv .venv
+.venv/Scripts/python -m pip install -r requirements.txt     # POSIX: .venv/bin/python
+.venv/Scripts/python scripts/fetch_data.py                  # 40 MB, hash-checked
+.venv/Scripts/python -m pytest -q                           # the checks
+.venv/Scripts/python run_all.py                             # regenerate everything
+```
+
+`pytest -q` is the one command that says whether this repository is sane. Every
+claim made anywhere in it is pinned by a test, and every test's target value is
+either analytic, previously published, or measured by someone else. Nothing here
+is asserted on our say-so.
+
+`scripts/fetch_data.py` downloads the strain and reference waveforms from the
+public course repository and verifies them against `data/MANIFEST.json`. If you
+already have a checkout of that tree, `--from-course PATH` copies instead. A
+hash mismatch is a hard failure: every number in `results.json` is a statement
+about those exact bytes.
+
+## Layout
+
+| | |
+|---|---|
+| `src/gwsel/` | the library. One module per idea, flat, importing only downwards |
+| `scripts/` | one script per stage; each writes into `results.json` and `figures/` |
+| `tests/` | the checks, one file per stage. This is the argument, not decoration |
+| `provenance/` | `numbers.json` and `claims.yaml` — where every number and figure came from |
+| `figures/` | committed, and every one of them has an entry in `claims.yaml` |
+| `page/` | the HTML we present from, built from `results.json` by `scripts/make_page.py` |
+| `TASKS/` | the brief for each stage, written to be handed to an agent |
+| `data/` | fetched, not committed. `MANIFEST.json` is committed |
+
+## Where the numbers we test against come from
+
+| kind | example |
+|---|---|
+| analytic | the sky average of the antenna response squared is exactly 1/5 |
+| published | the H1–L1 light travel time is 10.002 ms; the horizon-to-range factor is 2.26 |
+| a library | our Welch estimator against `gwpy`'s; our sidereal time against `astropy`'s |
+| previously measured | GW150914's SNR of 19.81 in H1 and 13.54 in L1, reproduced on day 2 |
+| self-consistency | injected parameters must come back out of the campaign |
+
+## The rule
+
+> If a check does not pass, **do not** widen the tolerance, change the target
+> value, mark the test `xfail`, or delete it. Stop, write down what you got and
+> what was expected in `NOTES.md`, and report it as a blocker. A tolerance
+> loosened to make a test pass is the single failure mode that destroys this
+> project, because every number downstream inherits it silently.
+
+## Platform notes
+
+Built on Windows 11, Python 3.12.10. Two consequences worth knowing:
+
+- **No `lalsuite`, no `healpy`.** Neither publishes a Windows build. Nothing here
+  needs them: the waveforms come from the shipped reference arrays plus our own
+  frequency-domain inspiral, and sky maps use matplotlib's Mollweide projection.
+- **The provenance hook is Windows-wired.** `.claude/settings.json` points at
+  `.venv/Scripts/python.exe`. On macOS or Linux change that to `.venv/bin/python`.
+  The hook is our working discipline, not part of the result — `pytest` and
+  `run_all.py` are platform-independent and are what a reproduction needs.
