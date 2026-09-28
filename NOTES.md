@@ -82,3 +82,26 @@ If a stage finds itself wanting one of them, that is a design problem, not a
 packaging problem. Say so and stop.
 
 *Status: known constraint, worked around by design.*
+
+---
+
+## OPEN — Day 1 whitened variance does not yet reproduce the reference
+
+The matched-filter control now reproduces H1 SNR 19.81039, L1 SNR 13.54323,
+H1 sigma 39.39713, GPS 1126259462.42334, the −7.08008 ms delay, and the
+gwpy PSD comparison (0.0009599%).  However, the current Tukey-windowed
+one-sided whitening implementation measures **0.44199** on the first clean
+32 s of H1, where the day-1 acceptance value is **0.9650 ± 0.02**.
+
+The tolerance and target have not been changed. The normalization/convention
+needs to be reconciled before Day 1 can be called complete.
+
+*Status: open. Recorded 2026-09-28.*
+
+**Resolution (2026-09-28):** `filtering.whiten()` now restores the one-sided
+PSD convention and Tukey taper energy with `sqrt(2 / mean(taper**2))`. The
+regenerated variance is **0.95891**, within the unchanged 0.9650 +/- 0.02
+acceptance interval.
+
+*Status: resolved. The original observation above remains as the record of the
+failed normalization.*

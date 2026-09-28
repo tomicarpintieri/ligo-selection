@@ -1,0 +1,85 @@
+claims:
+- id: control_gw150914
+  statement: This repository independently recovers GW150914 in both detectors with the expected
+    SNR and arrival-time offset.
+  evidence:
+  - tests/test_01_control.py
+  - src/gwsel/filtering.py::search
+  numbers:
+  - h1_peak_snr
+  - l1_peak_snr
+  - h1_sigma
+  - time_delay_ms
+  - welch_vs_gwpy_pct
+  - background_mean_rho2
+- id: waveform_agrees_with_lal
+  statement: Our non-spinning 3.5PN TaylorF2 waveform agrees with LAL on amplitude and phase.
+  evidence:
+  - tests/test_02_waveform.py
+  numbers:
+  - amplitude_ratio_vs_lal
+  - match_vs_lal
+- id: inspiral_only_is_a_floor
+  statement: Inspiral-only templates underestimate heavy-system detectability; an IMR waveform
+    is the alternative but is shipped only for one mass pair.
+  evidence:
+  - TASKS/day-2-waveform.md
+  numbers:
+  - snr_taylorf2_real_data
+- id: threshold_is_a_distance
+  statement: At fixed waveform, an SNR threshold maps directly to horizon distance.
+  evidence:
+  - tests/test_03_horizon.py
+  numbers:
+  - horizon_gw150914_mpc
+  - sensitive_volume_gpc3
+- id: selection_tilts_towards_heavy
+  statement: At low mass the horizon scales as chirp mass to the 5/6, increasing the sampled
+    volume for heavier binaries.
+  evidence:
+  - tests/test_03_horizon.py
+  numbers:
+  - horizon_mchirp_exponent
+figures:
+- file: figures/f01_snr_timeseries.png
+  produced_by: src/gwsel/figures.py::f01_snr_timeseries
+  shows: H1 and L1 matched-filter SNR around GW150914, with their measured peaks and timing
+    offset.
+  from_scratch: Computed and plotted the two filter outputs.
+  from_library: matplotlib plotting.
+  choices:
+  - 4 s Welch segments with 50% overlap
+  - median PSD for glitch robustness
+  - H1 PSD from its first 512 s off source
+  - 20–1024 Hz analysis band
+  - Tukey window with alpha 0.125
+  supports:
+  - control_gw150914
+- file: figures/f02_waveform_vs_lal.png
+  produced_by: src/gwsel/figures.py::f02_waveform_vs_lal
+  shows: Amplitude ratio of our TaylorF2 waveform and LAL reference.
+  from_scratch: Computed SPA waveform.
+  from_library: matplotlib.
+  choices:
+  - 3.5PN non-spinning TaylorF2 phase
+  - 0PN amplitude
+  - full LAL comparison grid; f_ISCO reported as physical boundary
+  - 20-150 Hz amplitude band
+  - 20-300 Hz match band
+  - Blanchet 2014 TaylorF2 coefficients
+  supports:
+  - waveform_agrees_with_lal
+- file: figures/f03_horizon_vs_mchirp.png
+  produced_by: src/gwsel/figures.py::f03_horizon_vs_mchirp
+  shows: Horizon against chirp mass.
+  from_scratch: Computed horizon curve.
+  from_library: matplotlib.
+  choices:
+  - threshold 8
+  - Euclidean volume
+  - off-source H1 PSD
+  - optimal orientation
+  - 1.5-5 Msun fixed-band fit
+  supports:
+  - threshold_is_a_distance
+  - selection_tilts_towards_heavy

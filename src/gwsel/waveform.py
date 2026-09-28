@@ -14,15 +14,22 @@ exactly this for m1=38.8, m2=33.35 Msun at 400 Mpc, face-on, from 20 Hz, on a
 """
 import numpy as np
 
+from . import constants as k
+
+# LAL's solar-mass time conversion.  The phase accumulates thousands of radians,
+# so its reference value is kept local rather than changing the project-wide
+# pedagogical mass constant used by earlier stages.
+LAL_MSUN_S = 4.925490947641267e-6
+
 
 def chirp_mass(m1, m2):
     """(m1 m2)^(3/5) / (m1 + m2)^(1/5), in whatever units go in."""
-    raise NotImplementedError("TASKS/day-2-waveform.md")
+    return (m1 * m2) ** (3.0 / 5.0) / (m1 + m2) ** (1.0 / 5.0)
 
 
 def symmetric_mass_ratio(m1, m2):
     """eta = m1 m2 / (m1 + m2)^2. 1/4 for equal masses, -> 0 as they separate."""
-    raise NotImplementedError("TASKS/day-2-waveform.md")
+    return m1 * m2 / (m1 + m2) ** 2
 
 
 def f_isco(m_total_solar):
@@ -35,7 +42,7 @@ def f_isco(m_total_solar):
 
     MUST SATISFY: 61.0 +- 0.5 Hz at M_total = 72.15.
     """
-    raise NotImplementedError("TASKS/day-2-waveform.md")
+    return 1.0 / (6.0 ** 1.5 * np.pi * m_total_solar * k.MSUN_S)
 
 
 def spa_inspiral(freqs, m1, m2, distance_mpc, inclination=0.0,
@@ -64,7 +71,52 @@ def spa_inspiral(freqs, m1, m2, distance_mpc, inclination=0.0,
     used post-Newtonian amplitude corrections rather than the 0PN amplitude.
     Record which convention we chose and why. Do not tune to close the gap.
     """
-    raise NotImplementedError("TASKS/day-2-waveform.md")
+    if chi1z != 0.0 or chi2z != 0.0:
+        raise NotImplementedError("aligned spins are a later stage")
+    if pn_order not in (0.0, 3.5):
+        raise ValueError("only 0PN and 3.5PN phase are implemented")
+    freqs = np.asarray(freqs, dtype=float)
+    eta = symmetric_mass_ratio(m1, m2)
+    m_total_s = (m1 + m2) * LAL_MSUN_S
+    mc_s = chirp_mass(m1, m2) * LAL_MSUN_S
+    # LAL's shipped TaylorF2 reference is evaluated across the complete FFT
+    # grid.  Keep f_ISCO as a reported physical boundary, but do not truncate
+    # this numerical reference unless a numeric cutoff is explicitly requested.
+    cutoff = np.inf if f_cut == "isco" else float(f_cut)
+    if f_high is not None:
+        cutoff = min(cutoff, f_high)
+    valid = (freqs >= f_low) & (freqs <= cutoff)
+    h_plus = np.zeros(freqs.shape, dtype=complex)
+    h_cross = np.zeros(freqs.shape, dtype=complex)
+    f = freqs[valid]
+    v = (np.pi * m_total_s * f) ** (1.0 / 3.0)
+    # TaylorF2, non-spinning phase through 3.5PN (Blanchet, Living Rev.
+    # Relativity 17, 2 (2014), Eq. 223).  The arbitrary coalescence time and
+    # phase are zero; match() maximises over both.
+    phase_series = np.ones_like(v)
+    if pn_order == 3.5:
+        gamma = np.euler_gamma
+        phase_series += (3715.0 / 756.0 + 55.0 * eta / 9.0) * v**2
+        phase_series += -16.0 * np.pi * v**3
+        phase_series += (15293365.0 / 508032.0 + 27145.0 * eta / 504.0
+                         + 3085.0 * eta**2 / 72.0) * v**4
+        phase_series += np.pi * (38645.0 / 756.0 - 65.0 * eta / 9.0) * (1.0 + 3.0 * np.log(v)) * v**5
+        phase_series += (11583231236531.0 / 4694215680.0 - 640.0 * np.pi**2 / 3.0
+                         - 6848.0 * gamma / 21.0 - 6848.0 * np.log(4.0 * v) / 21.0
+                         + (-15737765635.0 / 3048192.0 + 2255.0 * np.pi**2 / 12.0) * eta
+                         + 76055.0 * eta**2 / 1728.0 - 127825.0 * eta**3 / 1296.0) * v**6
+        phase_series += np.pi * (77096675.0 / 254016.0 + 378515.0 * eta / 1512.0
+                                 - 74045.0 * eta**2 / 756.0) * v**7
+    phase = -np.pi / 4.0 + 3.0 * phase_series / (128.0 * eta * v**5)
+    distance_m = distance_mpc * k.MPC
+    amplitude = (np.sqrt(5.0 / 24.0) / np.pi**(2.0 / 3.0)
+                 * (k.C / distance_m) * mc_s**(5.0 / 6.0) * f**(-7.0 / 6.0))
+    ci = np.cos(inclination)
+    # NumPy's forward FFT uses exp(-2 pi i f t), hence the frequency-domain
+    # TaylorF2 convention is exp(-i Psi) for the shipped LAL arrays.
+    h_plus[valid] = amplitude * (1.0 + ci**2) / 2.0 * np.exp(-1j * phase)
+    h_cross[valid] = 1j * amplitude * ci * np.exp(-1j * phase)
+    return h_plus, h_cross
 
 
 def match(h1, h2, psd, freqs, f_low, f_high):
@@ -73,4 +125,6 @@ def match(h1, h2, psd, freqs, f_low, f_high):
     This is the matched filter applied to a template instead of to data, so it
     reuses filtering.matched_filter rather than restating the inner product.
     """
-    raise NotImplementedError("TASKS/day-2-waveform.md")
+    from . import filtering
+    rho, sigma = filtering.matched_filter(h1, h2, psd, freqs, f_low, f_high)
+    return float(np.max(rho) / sigma)

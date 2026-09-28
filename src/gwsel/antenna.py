@@ -15,6 +15,20 @@ equally, the difference is zero, and the detector sees nothing at all. There are
 four such directions, and they are geometry, not a defect.
 """
 import numpy as np
+from dataclasses import dataclass
+from . import constants as k
+
+@dataclass(frozen=True)
+class Detector:
+    latitude: float
+    longitude: float
+    elevation: float
+    x_arm_azimuth: float
+
+DETECTORS = {
+    "H1": Detector(np.deg2rad(46.455), np.deg2rad(-119.408), 142.6, np.deg2rad(125.9994)),
+    "L1": Detector(np.deg2rad(30.563), np.deg2rad(-90.774), -6.6, np.deg2rad(197.7165)),
+}
 
 
 def response(theta, phi, psi):
@@ -38,7 +52,10 @@ def response(theta, phi, psi):
     tests/test_04_antenna.py::test_bad_sky_sampler_fails exists to prove the
     check can tell the difference.
     """
-    raise NotImplementedError("TASKS/day-4-antenna.md")
+    theta, phi, psi = np.broadcast_arrays(theta, phi, psi)
+    a = 0.5 * (1 + np.cos(theta)**2) * np.cos(2*phi)
+    b = np.cos(theta) * np.sin(2*phi)
+    return a*np.cos(2*psi) - b*np.sin(2*psi), a*np.sin(2*psi) + b*np.cos(2*psi)
 
 
 def projection_factor(f_plus, f_cross, inclination):
@@ -58,7 +75,8 @@ def projection_factor(f_plus, f_cross, inclination):
     average). Day 2 of the course mentions "the averaged range is 2.26x smaller"
     in a presenter note and never computes it.
     """
-    raise NotImplementedError("TASKS/day-4-antenna.md")
+    ci = np.cos(inclination)
+    return np.sqrt(f_plus**2 * ((1+ci**2)/2)**2 + f_cross**2 * ci**2)
 
 
 # ---------------------------------------------------------------- day 5
@@ -74,7 +92,11 @@ def gmst_from_gps(gps):
       gmst(t + 86164.0905 s) - gmst(t) = 2 pi   to 1e-6 rad
       agrees with astropy.time                  to 1e-4 rad
     """
-    raise NotImplementedError("TASKS/day-5-network.md")
+    # IAU 1982 expression, GPS converted to Julian date via the Unix epoch.
+    jd = np.asarray(gps) / 86400.0 + 2444244.5
+    t = (jd - 2451545.0) / 36525.0
+    degrees = 280.46061837 + 360.98564736629 * (jd - 2451545.0) + .000387933*t*t - t*t*t/38710000
+    return np.deg2rad(np.mod(degrees, 360.0))
 
 
 def response_earth(detector, ra, dec, psi, gps):
@@ -88,7 +110,11 @@ def response_earth(detector, ra, dec, psi, gps):
     MUST SATISFY: <F_plus^2> over the sky is still 1/5 at any gps -- a rotation
     cannot change an average over all directions.
     """
-    raise NotImplementedError("TASKS/day-5-network.md")
+    d = DETECTORS[detector]
+    hour = gmst_from_gps(gps) + d.longitude - ra
+    theta = np.arccos(np.sin(d.latitude)*np.sin(dec) + np.cos(d.latitude)*np.cos(dec)*np.cos(hour))
+    phi = np.arctan2(np.cos(dec)*np.sin(hour), np.cos(d.latitude)*np.sin(dec)-np.sin(d.latitude)*np.cos(dec)*np.cos(hour)) - d.x_arm_azimuth
+    return response(theta, phi, psi)
 
 
 def time_delay(det_a, det_b, ra, dec, gps):
@@ -102,4 +128,9 @@ def time_delay(det_a, det_b, ra, dec, gps):
         published localisation is a banana of about 600 square degrees, and the
         page has to say so in those words.
     """
-    raise NotImplementedError("TASKS/day-5-network.md")
+    def site(d):
+        r = 6371000.0 + d.elevation
+        return r*np.array([np.cos(d.latitude)*np.cos(d.longitude), np.cos(d.latitude)*np.sin(d.longitude), np.sin(d.latitude)])
+    a, b = DETECTORS[det_a], DETECTORS[det_b]
+    n = np.array([np.cos(dec)*np.cos(ra), np.cos(dec)*np.sin(ra), np.sin(dec)])
+    return np.dot(site(b)-site(a), n) / k.C

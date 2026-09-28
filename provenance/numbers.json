@@ -1,0 +1,245 @@
+{
+  "amplitude_mchirp_exponent": {
+    "choices": [
+      "3.5PN non-spinning TaylorF2 phase",
+      "0PN amplitude",
+      "full LAL comparison grid; f_ISCO reported as physical boundary",
+      "20-150 Hz amplitude band",
+      "20-300 Hz match band",
+      "Blanchet 2014 TaylorF2 coefficients"
+    ],
+    "from_library": "LAL reference waveform and Blanchet 2014 coefficients.",
+    "from_scratch": "Implemented non-spinning SPA waveform.",
+    "produced_by": "src/gwsel/waveform.py::spa_inspiral",
+    "statement": "amplitude_mchirp_exponent",
+    "value": 0.8333333333333334
+  },
+  "amplitude_ratio_vs_lal": {
+    "choices": [
+      "3.5PN non-spinning TaylorF2 phase",
+      "0PN amplitude",
+      "full LAL comparison grid; f_ISCO reported as physical boundary",
+      "20-150 Hz amplitude band",
+      "20-300 Hz match band",
+      "Blanchet 2014 TaylorF2 coefficients"
+    ],
+    "from_library": "LAL reference waveform and Blanchet 2014 coefficients.",
+    "from_scratch": "Implemented non-spinning SPA waveform.",
+    "produced_by": "src/gwsel/waveform.py::spa_inspiral",
+    "statement": "amplitude_ratio_vs_lal",
+    "value": 0.9999999999999997
+  },
+  "background_loudest_rho": {
+    "choices": [
+      "4 s Welch segments with 50% overlap",
+      "median PSD for glitch robustness",
+      "H1 PSD from its first 512 s off source",
+      "20\u20131024 Hz analysis band",
+      "Tukey window with alpha 0.125"
+    ],
+    "from_library": "Compared the PSD result with the shipped gwpy reference where applicable.",
+    "from_scratch": "Implemented the estimator and filter on the shared FFT grid.",
+    "produced_by": "scripts/s01_control.py::background_statistics",
+    "statement": "Loudest matched-filter SNR in the off-source H1 windows.",
+    "value": 6.316134056121437
+  },
+  "background_mean_rho2": {
+    "choices": [
+      "4 s Welch segments with 50% overlap",
+      "median PSD for glitch robustness",
+      "H1 PSD from its first 512 s off source",
+      "20\u20131024 Hz analysis band",
+      "Tukey window with alpha 0.125"
+    ],
+    "from_library": "Compared the PSD result with the shipped gwpy reference where applicable.",
+    "from_scratch": "Implemented the estimator and filter on the shared FFT grid.",
+    "produced_by": "scripts/s01_control.py::background_statistics",
+    "statement": "Mean rho squared in independent off-source H1 samples.",
+    "value": 2.0176283464212714
+  },
+  "distance_upper_bound_mpc": {
+    "choices": [
+      "threshold 8",
+      "Euclidean volume",
+      "off-source H1 PSD",
+      "optimal orientation",
+      "1.5-5 Msun fixed-band fit"
+    ],
+    "from_library": "numpy.",
+    "from_scratch": "Implemented SNR-distance scaling.",
+    "produced_by": "src/gwsel/horizon.py::horizon_distance",
+    "statement": "distance_upper_bound_mpc",
+    "value": 795.4841746067982
+  },
+  "f_isco_gw150914": {
+    "choices": [
+      "3.5PN non-spinning TaylorF2 phase",
+      "0PN amplitude",
+      "full LAL comparison grid; f_ISCO reported as physical boundary",
+      "20-150 Hz amplitude band",
+      "20-300 Hz match band",
+      "Blanchet 2014 TaylorF2 coefficients"
+    ],
+    "from_library": "LAL reference waveform and Blanchet 2014 coefficients.",
+    "from_scratch": "Implemented non-spinning SPA waveform.",
+    "produced_by": "src/gwsel/waveform.py::spa_inspiral",
+    "statement": "f_isco_gw150914",
+    "value": 60.9292716384359
+  },
+  "h1_peak_snr": {
+    "choices": [
+      "4 s Welch segments with 50% overlap",
+      "median PSD for glitch robustness",
+      "H1 PSD from its first 512 s off source",
+      "20\u20131024 Hz analysis band",
+      "Tukey window with alpha 0.125"
+    ],
+    "from_library": "Compared the PSD result with the shipped gwpy reference where applicable.",
+    "from_scratch": "Implemented the estimator and filter on the shared FFT grid.",
+    "produced_by": "src/gwsel/filtering.py::peak",
+    "statement": "Peak IMRPhenomD matched-filter SNR in H1.",
+    "value": 19.81039063634292
+  },
+  "h1_sigma": {
+    "choices": [
+      "4 s Welch segments with 50% overlap",
+      "median PSD for glitch robustness",
+      "H1 PSD from its first 512 s off source",
+      "20\u20131024 Hz analysis band",
+      "Tukey window with alpha 0.125"
+    ],
+    "from_library": "Compared the PSD result with the shipped gwpy reference where applicable.",
+    "from_scratch": "Implemented the estimator and filter on the shared FFT grid.",
+    "produced_by": "src/gwsel/filtering.py::matched_filter",
+    "statement": "Template norm sqrt(<h|h>) against the H1 PSD.",
+    "value": 39.39713060997373
+  },
+  "horizon_gw150914_mpc": {
+    "choices": [
+      "threshold 8",
+      "Euclidean volume",
+      "off-source H1 PSD",
+      "optimal orientation",
+      "1.5-5 Msun fixed-band fit"
+    ],
+    "from_library": "numpy.",
+    "from_scratch": "Implemented SNR-distance scaling.",
+    "produced_by": "src/gwsel/horizon.py::horizon_distance",
+    "statement": "horizon_gw150914_mpc",
+    "value": 1969.8565304986864
+  },
+  "horizon_mchirp_exponent": {
+    "choices": [
+      "threshold 8",
+      "Euclidean volume",
+      "off-source H1 PSD",
+      "optimal orientation",
+      "1.5-5 Msun fixed-band fit"
+    ],
+    "from_library": "numpy.",
+    "from_scratch": "Implemented SNR-distance scaling.",
+    "produced_by": "src/gwsel/horizon.py::horizon_distance",
+    "statement": "horizon_mchirp_exponent",
+    "value": 0.8333333333333315
+  },
+  "l1_peak_snr": {
+    "choices": [
+      "4 s Welch segments with 50% overlap",
+      "median PSD for glitch robustness",
+      "H1 PSD from its first 512 s off source",
+      "20\u20131024 Hz analysis band",
+      "Tukey window with alpha 0.125"
+    ],
+    "from_library": "Compared the PSD result with the shipped gwpy reference where applicable.",
+    "from_scratch": "Implemented the estimator and filter on the shared FFT grid.",
+    "produced_by": "src/gwsel/filtering.py::peak",
+    "statement": "Peak IMRPhenomD matched-filter SNR in L1.",
+    "value": 13.543228039550534
+  },
+  "match_vs_lal": {
+    "choices": [
+      "3.5PN non-spinning TaylorF2 phase",
+      "0PN amplitude",
+      "full LAL comparison grid; f_ISCO reported as physical boundary",
+      "20-150 Hz amplitude band",
+      "20-300 Hz match band",
+      "Blanchet 2014 TaylorF2 coefficients"
+    ],
+    "from_library": "LAL reference waveform and Blanchet 2014 coefficients.",
+    "from_scratch": "Implemented non-spinning SPA waveform.",
+    "produced_by": "src/gwsel/waveform.py::spa_inspiral",
+    "statement": "match_vs_lal",
+    "value": 0.9999999999999996
+  },
+  "sensitive_volume_gpc3": {
+    "choices": [
+      "threshold 8",
+      "Euclidean volume",
+      "off-source H1 PSD",
+      "optimal orientation",
+      "1.5-5 Msun fixed-band fit"
+    ],
+    "from_library": "numpy.",
+    "from_scratch": "Implemented SNR-distance scaling.",
+    "produced_by": "src/gwsel/horizon.py::horizon_distance",
+    "statement": "sensitive_volume_gpc3",
+    "value": 32.017867204493655
+  },
+  "sigma_imr_h1": {
+    "choices": [
+      "threshold 8",
+      "Euclidean volume",
+      "off-source H1 PSD",
+      "optimal orientation",
+      "1.5-5 Msun fixed-band fit"
+    ],
+    "from_library": "numpy.",
+    "from_scratch": "Implemented SNR-distance scaling.",
+    "produced_by": "src/gwsel/horizon.py::horizon_distance",
+    "statement": "sigma_imr_h1",
+    "value": 39.39713060997373
+  },
+  "snr_taylorf2_real_data": {
+    "choices": [
+      "3.5PN non-spinning TaylorF2 phase",
+      "0PN amplitude",
+      "full LAL comparison grid; f_ISCO reported as physical boundary",
+      "20-150 Hz amplitude band",
+      "20-300 Hz match band",
+      "Blanchet 2014 TaylorF2 coefficients"
+    ],
+    "from_library": "LAL reference waveform and Blanchet 2014 coefficients.",
+    "from_scratch": "Implemented non-spinning SPA waveform.",
+    "produced_by": "src/gwsel/waveform.py::spa_inspiral",
+    "statement": "snr_taylorf2_real_data",
+    "value": 11.357810770064875
+  },
+  "time_delay_ms": {
+    "choices": [
+      "4 s Welch segments with 50% overlap",
+      "median PSD for glitch robustness",
+      "H1 PSD from its first 512 s off source",
+      "20\u20131024 Hz analysis band",
+      "Tukey window with alpha 0.125"
+    ],
+    "from_library": "Compared the PSD result with the shipped gwpy reference where applicable.",
+    "from_scratch": "Implemented the estimator and filter on the shared FFT grid.",
+    "produced_by": "src/gwsel/filtering.py::search",
+    "statement": "L1 arrival time minus H1 arrival time, in ms.",
+    "value": -7.080078125
+  },
+  "welch_vs_gwpy_pct": {
+    "choices": [
+      "4 s Welch segments with 50% overlap",
+      "median PSD for glitch robustness",
+      "H1 PSD from its first 512 s off source",
+      "20\u20131024 Hz analysis band",
+      "Tukey window with alpha 0.125"
+    ],
+    "from_library": "Compared the PSD result with the shipped gwpy reference where applicable.",
+    "from_scratch": "Implemented the estimator and filter on the shared FFT grid.",
+    "produced_by": "src/gwsel/psd.py::welch_median",
+    "statement": "Median relative PSD difference from gwpy, in percent.",
+    "value": 0.0009598560177811307
+  }
+}

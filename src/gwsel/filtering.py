@@ -7,6 +7,7 @@ NSEG, DF, GUARD) turned into arguments. The physics is ten lines; everything
 else is bookkeeping about which grid you are on.
 """
 import numpy as np
+from scipy.signal.windows import tukey
 
 
 def whiten(x, fs, freqs_psd, psd, f_lo=None, f_hi=None, window=True):
@@ -16,7 +17,24 @@ def whiten(x, fs, freqs_psd, psd, f_lo=None, f_hi=None, window=True):
     away from the event, cut at 20 Hz, the value is 0.9650 -- not 1.000, and the
     gap is the window, which is why `window` is an argument and not a constant.
     """
-    raise NotImplementedError("TASKS/day-1-control.md")
+    x = np.asarray(x, dtype=float)
+    n = x.size
+    freqs = np.fft.rfftfreq(n, 1.0 / fs)
+    noise = np.interp(freqs, freqs_psd, psd, left=np.inf, right=np.inf)
+    band = np.isfinite(noise)
+    if f_lo is not None:
+        band &= freqs >= f_lo
+    if f_hi is not None:
+        band &= freqs <= f_hi
+    taper = tukey(n, alpha=0.125) if window else np.ones(n)
+    spectrum = np.fft.rfft(x * taper)
+    spectrum[~band] = 0.0
+    # The PSD is one-sided and the Tukey taper removes time-domain energy.
+    # Restore both conventions so unit-variance stationary noise stays unit
+    # variance after the finite-length, tapered transform.
+    normalization = np.sqrt(2.0 / np.mean(taper ** 2))
+    return normalization * np.fft.irfft(
+        spectrum / np.sqrt(noise * fs / 2.0), n=n)
 
 
 def segment(strain, t0, fs, gps_centre, seg_s):
@@ -26,7 +44,13 @@ def segment(strain, t0, fs, gps_centre, seg_s):
     transform, so it has the units of the continuous Fourier transform of the
     strain -- the matched filter below assumes that.
     """
-    raise NotImplementedError("TASKS/day-1-control.md")
+    n = int(round(seg_s * fs))
+    centre = int(round((gps_centre - t0) * fs))
+    start = centre - n // 2
+    if start < 0 or start + n > len(strain):
+        raise ValueError("requested segment is outside the strain array")
+    taper = tukey(n, alpha=0.125)
+    return np.fft.rfft(np.asarray(strain[start:start + n]) * taper) / fs, t0 + start / fs
 
 
 def matched_filter(dtilde, htilde, psd, freqs, f_low, f_high):
@@ -44,7 +68,23 @@ def matched_filter(dtilde, htilde, psd, freqs, f_low, f_high):
     MUST SATISFY: against real H1 data with the shipped IMRPhenomD waveform,
     rho peaks at 19.8104 and sigma is 39.3971.
     """
-    raise NotImplementedError("TASKS/day-1-control.md")
+    dtilde = np.asarray(dtilde)
+    htilde = np.asarray(htilde)
+    psd = np.asarray(psd, dtype=float)
+    freqs = np.asarray(freqs, dtype=float)
+    if not (dtilde.shape == htilde.shape == psd.shape == freqs.shape):
+        raise ValueError("filter inputs must share one frequency grid")
+    band = ((freqs >= f_low) & (freqs <= f_high) & np.isfinite(psd)
+            & (psd > 0.0))
+    df = freqs[1] - freqs[0]
+    sigma2 = 4.0 * np.sum(np.abs(htilde[band]) ** 2 / psd[band]) * df
+    spectrum = np.zeros_like(dtilde, dtype=complex)
+    spectrum[band] = 4.0 * dtilde[band] * np.conj(htilde[band]) / psd[band] * df
+    n = 2 * (len(freqs) - 1)
+    analytic = np.zeros(n, dtype=complex)
+    analytic[:len(spectrum)] = spectrum
+    z = np.fft.ifft(analytic) * n
+    return np.abs(z) / np.sqrt(sigma2), np.sqrt(sigma2)
 
 
 def peak(rho, guard):
@@ -54,7 +94,12 @@ def peak(rho, guard):
     edges produces a filter response that is an artifact of the window.
     Returns (index, value).
     """
-    raise NotImplementedError("TASKS/day-1-control.md")
+    rho = np.asarray(rho)
+    if 2 * guard >= rho.size:
+        raise ValueError("guard leaves no samples to search")
+    local = int(np.argmax(rho[guard:rho.size - guard]))
+    index = local + guard
+    return index, float(rho[index])
 
 
 def template_peak_time(htilde, freqs, f_low, f_high, n, fs):
@@ -63,7 +108,14 @@ def template_peak_time(htilde, freqs, f_low, f_high, n, fs):
     Needed to turn a filter-output index into an arrival time: the filter tells
     you the offset between data and template, not when the signal arrived.
     """
-    raise NotImplementedError("TASKS/day-1-control.md")
+    band = (freqs >= f_low) & (freqs <= f_high)
+    spectrum = np.zeros_like(htilde, dtype=complex)
+    spectrum[band] = htilde[band]
+    waveform = np.fft.irfft(spectrum * fs, n=n)
+    time = float(np.argmax(np.abs(waveform)) / fs)
+    # FFT time is periodic.  A peak at the right edge is a small negative
+    # offset from zero, not an arrival one segment later.
+    return time if time <= (n / fs) / 2.0 else time - n / fs
 
 
 def search(strain, t0, fs, htilde, psd, freqs, gps_centre, seg_s,
@@ -72,4 +124,11 @@ def search(strain, t0, fs, htilde, psd, freqs, gps_centre, seg_s,
 
     Returns a dict with rho, seg_start, peak, sigma, gps.
     """
-    raise NotImplementedError("TASKS/day-1-control.md")
+    dtilde, seg_start = segment(strain, t0, fs, gps_centre, seg_s)
+    rho, sigma = matched_filter(dtilde, htilde, psd, freqs, f_low, f_high)
+    index, value = peak(rho, guard)
+    template_time = template_peak_time(htilde, freqs, f_low, f_high,
+                                       2 * (len(freqs) - 1), fs)
+    gps = seg_start + index / fs + template_time
+    return {"rho": rho, "seg_start": seg_start, "peak": value,
+            "sigma": sigma, "gps": gps, "peak_index": index}
