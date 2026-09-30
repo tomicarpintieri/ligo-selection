@@ -52,7 +52,9 @@ def spa_inspiral(freqs, m1, m2, distance_mpc, inclination=0.0,
 
     Amplitude at 0PN, phase to `pn_order` (3.5PN by default, which is what LAL's
     TaylorF2 uses -- matching it is the point). Masses in solar masses, distance
-    in Mpc, angles in radians. Outside [f_low, f_cut] the output is zero.
+    in Mpc, angles in radians. Outside [f_low, f_cut] the output is zero;
+    `f_cut=None` asks for no upper cutoff, which is the convention LAL's
+    shipped reference uses and the only place this project wants it.
 
     chi1z and chi2z are accepted so that week 3's aligned-spin work is an edit
     and not a rewrite. Until then anything non-zero must raise
@@ -79,10 +81,23 @@ def spa_inspiral(freqs, m1, m2, distance_mpc, inclination=0.0,
     eta = symmetric_mass_ratio(m1, m2)
     m_total_s = (m1 + m2) * LAL_MSUN_S
     mc_s = chirp_mass(m1, m2) * LAL_MSUN_S
-    # LAL's shipped TaylorF2 reference is evaluated across the complete FFT
-    # grid.  Keep f_ISCO as a reported physical boundary, but do not truncate
-    # this numerical reference unless a numeric cutoff is explicitly requested.
-    cutoff = np.inf if f_cut == "isco" else float(f_cut)
+    # Three ways to say where the waveform stops, and the default is the
+    # physical one.  Until 2026-09-30 "isco" meant np.inf -- the default value
+    # was named after the cutoff it disabled -- which inflated sigma by 1.83x
+    # at 72 Msun and 4x at 120 Msun, growing with mass, i.e. along exactly the
+    # axis this project measures.
+    #
+    #   "isco"        stop where the inspiral description stops being true
+    #   None          no cutoff at all.  LAL's shipped TaylorF2 reference runs
+    #                 to Nyquist, so comparing against it must ask for this
+    #                 explicitly rather than receive it by accident
+    #   a number      stop there, in Hz
+    if f_cut == "isco":
+        cutoff = f_isco(m1 + m2)
+    elif f_cut is None:
+        cutoff = np.inf
+    else:
+        cutoff = float(f_cut)
     if f_high is not None:
         cutoff = min(cutoff, f_high)
     valid = (freqs >= f_low) & (freqs <= cutoff)

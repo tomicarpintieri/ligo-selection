@@ -27,19 +27,31 @@ claims:
   numbers:
   - snr_taylorf2_real_data
 - id: threshold_is_a_distance
-  statement: At fixed waveform, an SNR threshold maps directly to horizon distance.
+  statement: 'An SNR threshold on a fixed waveform is a distance, and therefore a searched
+    volume: for GW150914 at rho = 8 that is 1.97 Gpc and 32 Gpc^3, and halving the threshold
+    multiplies the volume by eight.'
   evidence:
   - tests/test_03_horizon.py
+  - src/gwsel/horizon.py::horizon_distance
+  - src/gwsel/horizon.py::sensitive_volume_euclidean
   numbers:
   - horizon_gw150914_mpc
   - sensitive_volume_gpc3
+  - volume_threshold_log_slope
 - id: selection_tilts_towards_heavy
-  statement: At low mass the horizon scales as chirp mass to the 5/6, increasing the sampled
-    volume for heavier binaries.
+  statement: 'While the analysis band is fixed the horizon grows as chirp mass to the 5/6,
+    so heavier binaries are drawn from a larger volume and a catalogue over-represents them.
+    The law stops holding once the merger itself falls into the band: the curve turns over
+    near Mc = 27 Msun and falls after.'
   evidence:
   - tests/test_03_horizon.py
+  - scripts/s03_horizon.py::fit_window_max
+  - Roulet & Zaldarriaga 2019, Fig. 3
   numbers:
   - horizon_mchirp_exponent
+  - horizon_fit_window_max_mchirp
+  - horizon_peak_mchirp
+  - horizon_peak_mpc
 figures:
 - file: figures/f01_snr_timeseries.png
   produced_by: src/gwsel/figures.py::f01_snr_timeseries
@@ -71,15 +83,23 @@ figures:
   - waveform_agrees_with_lal
 - file: figures/f03_horizon_vs_mchirp.png
   produced_by: src/gwsel/figures.py::f03_horizon_vs_mchirp
-  shows: Horizon against chirp mass.
-  from_scratch: Computed horizon curve.
-  from_library: matplotlib.
+  shows: Horizon distance against chirp mass on log axes, with GW150914 marked. It rises as
+    the 5/6 power while the signal fills the band, turns over near Mc = 27 Msun once the merger
+    drops below the band, and falls after. Euclidean, so past a few Gpc it is a scale and
+    not a distance.
+  from_scratch: Computed the whole curve from our own waveform and the measured H1 PSD.
+  from_library: matplotlib for the drawing.
   choices:
-  - threshold 8
-  - Euclidean volume
-  - off-source H1 PSD
-  - optimal orientation
-  - 1.5-5 Msun fixed-band fit
+  - detection threshold rho = 8, not the 9 of Roulet & Zaldarriaga 2019
+  - 'Euclidean sensitive volume: no redshift, no expansion'
+  - H1 PSD estimated off-source from the first 512 s
+  - optimal orientation and sky position, which makes this a horizon and not a range; day
+    4's factor of 2.26 is what separates the two
+  - equal-mass binaries along the whole curve
+  - waveform cut at f_ISCO, and the curve stopped at Mc = 80 Msun because above it f_ISCO
+    falls below the 20 Hz band edge
+  - fit window derived from BAND_FIXED_TOLERANCE = 0.999 (Mc <= 2.385) instead of the brief's
+    [1.5, 5], which is too wide for the band to count as fixed
   supports:
   - threshold_is_a_distance
   - selection_tilts_towards_heavy

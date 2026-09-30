@@ -3,7 +3,10 @@ ROOT=pathlib.Path(__file__).resolve().parents[1]; sys.path.insert(0,str(ROOT/'sr
 import numpy as np
 from gwsel import dataio, waveform, psd, filtering, figures, provenance as pv, constants as k
 
-w=dataio.load_waveforms(); h,_=waveform.spa_inspiral(w['freqs'],38.8,33.35,400)
+w=dataio.load_waveforms()
+# f_cut=None: LAL's shipped TaylorF2 runs to Nyquist, so the reference
+# comparison is the one place in this project that wants no cutoff.
+h,_=waveform.spa_inspiral(w['freqs'],38.8,33.35,400,f_cut=None)
 H,t,fs=dataio.load_strain('H1'); fp,p=psd.welch_median(H[:int(512*fs)],fs); P=psd.psd_on_grid(fp,p,w['freqs'])
 b=(w['freqs']>=20)&(w['freqs']<=150); ratio=abs(h[b])/abs(w['h_taylorf2_lal'][b])
 snr=filtering.search(H,t,fs,h,P,w['freqs'],k.EVENT_GPS,32,20,1024,4*4096)['peak']

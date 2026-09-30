@@ -105,3 +105,97 @@ acceptance interval.
 
 *Status: resolved. The original observation above remains as the record of the
 failed normalization.*
+
+---
+
+## RESOLVED — `f_cut="isco"` disabled the cutoff it was named after
+
+`spa_inspiral`'s docstring said *"Outside [f_low, f_cut] the output is zero"*,
+and its default value `"isco"` was implemented as `np.inf`. Every waveform the
+project generated therefore ran to Nyquist, tens of times past the frequency
+where the inspiral description stops being true.
+
+Measured cost, sigma with no cutoff over sigma cut at f_ISCO:
+
+| total mass | f_ISCO | inflation in sigma | in Euclidean volume |
+|---|---|---|---|
+| 20 Msun | 220 Hz | 1.06x | 1.2x |
+| 40 Msun | 110 Hz | 1.27x | 2.1x |
+| 72 Msun | 61 Hz | **1.83x** | **6.1x** |
+| 120 Msun | 37 Hz | **4.02x** | **65x** |
+
+The inflation grows with mass, which is the axis this project exists to
+measure, so this was not a small systematic — it pointed straight at the
+headline result.
+
+**Fix (2026-09-30):** `f_cut="isco"` now cuts at `f_isco(m1 + m2)`, and
+`f_cut=None` is the explicit way to ask for no cutoff. LAL's shipped TaylorF2
+reference runs to Nyquist, so `scripts/s02_waveform.py` now passes `None`
+deliberately — it is the only place in the project that wants it. The four
+numbers that compare against LAL are unchanged: amplitude ratio 1.000, match
+1.000, SNR 11.3578, f_ISCO 60.93 Hz.
+
+*Status: resolved.*
+
+---
+
+## RESOLVED — the horizon curve was computed with two different physics in it
+
+`horizon_curve` read its cutoff with `waveform_kwargs.pop("f_cut", None)`
+**inside** its own loop. `pop` consumes the key, so mass 1 of 80 received the
+ISCO cutoff and masses 2 through 80 received `None`.
+
+| chirp mass | published curve | correct | error |
+|---|---|---|---|
+| 1.50 | 189.3 Mpc | 189.3 Mpc | — (the one point that got the cutoff) |
+| 10.95 | 992.7 Mpc | 903.4 Mpc | 1.1x |
+| 29.60 | 2272.9 Mpc | 1315.9 Mpc | 1.7x |
+| 80.00 | 5204.5 Mpc | 358.9 Mpc | **14.5x** |
+
+Worse than the numbers: the correct curve **turns over**. Heavier means louder
+until heavier means the merger falls out of the band. The published curve rose
+monotonically forever, which is the physical content of the figure inverted.
+
+**Fix (2026-09-30):** the `pop` moved out of the loop, and
+`tests/test_03_horizon.py::test_horizon_turns_over` now recomputes a coarse
+curve and asserts an interior maximum. It recomputes rather than reading the
+recorded peak on purpose: reading it back would only confirm the script agrees
+with itself. The regenerated curve peaks at **Mc = 27.8 Msun / 1329 Mpc**.
+
+That test was specified in `TASKS/day-3-horizon.md` and had been dropped. It
+would have caught this on the day it was written.
+
+*Status: resolved.*
+
+---
+
+## FINDING — the day-3 brief's 5/6 fit window is too wide, and by how much
+
+Once the ISCO cutoff actually cuts, `test_horizon_exponent_5_6` fails over the
+window the brief names: **0.8219**, where the same brief asks for 5/6 within
+±0.01, i.e. ≥ 0.8233.
+
+**The tolerance was not touched.** The window was wrong, and it can be shown:
+
+`TASKS/day-3-horizon.md` justifies [1.5, 5] Msun with *"there f_isco sits above
+~380 Hz, i.e. above the sensitive band, so the waveform fills the band and the
+exponent holds"*. That does not hold at the top of its own window. At Mc = 5,
+f_ISCO is 383 Hz and the analysis band runs to **1024 Hz** — so the cutoff is
+inside the band, not above it. The band is not fixed there, and the 5/6 law
+requires a fixed band.
+
+**What replaced it.** `scripts/s03_horizon.py` fixes the acceptable bias first,
+as a fraction of SNR — `BAND_FIXED_TOLERANCE = 0.999`, meaning the ISCO cut may
+cost at most 0.1 % of sigma — and derives the window from it by bisection. That
+gives Mc ≤ **2.385**, where the exponent measures **0.8314**, inside ±0.01 with
+80 % of the tolerance to spare. Both the criterion and the resulting window are
+in `results.json` and in the provenance `choices`, and
+`test_fit_window_is_derived_not_chosen` pins both ends of the bisection so the
+window cannot be quietly widened later.
+
+The wide-window value stays measured and recorded as
+`horizon_mchirp_exponent_brief_window`, with
+`test_brief_window_is_recorded_as_too_wide` asserting it is still outside
+tolerance — so if anyone restores the old window, the failure explains itself.
+
+*Status: resolved, and kept as a finding. Recorded 2026-09-30.*

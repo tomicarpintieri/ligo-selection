@@ -14,9 +14,14 @@
   "h1_peak_gps": 1126259462.4233398,
   "h1_peak_snr": 19.81039063634292,
   "h1_sigma": 39.39713060997373,
+  "horizon_band_fixed_tolerance": 0.999,
+  "horizon_fit_window_max_mchirp": 2.3852478812533207,
   "horizon_gw150914_mpc": 1969.8565304986864,
-  "horizon_mchirp_exponent": 0.8333333333333315,
+  "horizon_mchirp_exponent": 0.8313696686793761,
+  "horizon_mchirp_exponent_brief_window": 0.8219410348724752,
   "horizon_over_range_factor": 2.2648696135184156,
+  "horizon_peak_mchirp": 27.79805281766254,
+  "horizon_peak_mpc": 1328.9385090147384,
   "l1_peak_gps": 1126259462.4162598,
   "l1_peak_snr": 13.543228039550534,
   "match_vs_lal": 0.9999999999999996,
@@ -28,6 +33,7 @@
   "sky_mean_fplus_squared": 0.19997483510170627,
   "snr_taylorf2_real_data": 11.357810770064875,
   "time_delay_l1_minus_h1_ms": -7.080078125,
+  "volume_threshold_log_slope": -3.0,
   "welch_vs_gwpy_pct": 0.0009598560177811307,
   "whitened_variance": 0.9589101886293006
 }

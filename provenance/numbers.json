@@ -59,16 +59,18 @@
   },
   "distance_upper_bound_mpc": {
     "choices": [
-      "threshold 8",
-      "Euclidean volume",
-      "off-source H1 PSD",
-      "optimal orientation",
-      "1.5-5 Msun fixed-band fit"
+      "detection threshold rho = 8, not the 9 of Roulet & Zaldarriaga 2019",
+      "Euclidean sensitive volume: no redshift, no expansion",
+      "H1 PSD estimated off-source from the first 512 s",
+      "optimal orientation and sky position, which makes this a horizon and not a range; day 4's factor of 2.26 is what separates the two",
+      "equal-mass binaries along the whole curve",
+      "waveform cut at f_ISCO, and the curve stopped at Mc = 80 Msun because above it f_ISCO falls below the 20 Hz band edge",
+      "fit window derived from BAND_FIXED_TOLERANCE = 0.999 (Mc <= 2.385) instead of the brief's [1.5, 5], which is too wide for the band to count as fixed"
     ],
-    "from_library": "numpy.",
-    "from_scratch": "Implemented SNR-distance scaling.",
-    "produced_by": "src/gwsel/horizon.py::horizon_distance",
-    "statement": "distance_upper_bound_mpc",
+    "from_library": "numpy for the fits and grids; the IMRPhenomD reference array ships with the course data.",
+    "from_scratch": "Implemented the SNR-distance-volume chain, the horizon curve, and the band-fixed criterion the fit window is derived from.",
+    "produced_by": "scripts/s03_horizon.py::main",
+    "statement": "Upper bound on GW150914's distance implied by its own SNR, in Mpc.",
     "value": 795.4841746067982
   },
   "f_isco_gw150914": {
@@ -114,33 +116,117 @@
     "statement": "Template norm sqrt(<h|h>) against the H1 PSD.",
     "value": 39.39713060997373
   },
+  "horizon_band_fixed_tolerance": {
+    "choices": [
+      "detection threshold rho = 8, not the 9 of Roulet & Zaldarriaga 2019",
+      "Euclidean sensitive volume: no redshift, no expansion",
+      "H1 PSD estimated off-source from the first 512 s",
+      "optimal orientation and sky position, which makes this a horizon and not a range; day 4's factor of 2.26 is what separates the two",
+      "equal-mass binaries along the whole curve",
+      "waveform cut at f_ISCO, and the curve stopped at Mc = 80 Msun because above it f_ISCO falls below the 20 Hz band edge",
+      "fit window derived from BAND_FIXED_TOLERANCE = 0.999 (Mc <= 2.385) instead of the brief's [1.5, 5], which is too wide for the band to count as fixed"
+    ],
+    "from_library": "numpy for the fits and grids; the IMRPhenomD reference array ships with the course data.",
+    "from_scratch": "Implemented the SNR-distance-volume chain, the horizon curve, and the band-fixed criterion the fit window is derived from.",
+    "produced_by": "scripts/s03_horizon.py",
+    "statement": "The fraction of sigma the ISCO cut may cost inside the fit window, fixed before the window was computed.",
+    "value": 0.999
+  },
+  "horizon_fit_window_max_mchirp": {
+    "choices": [
+      "detection threshold rho = 8, not the 9 of Roulet & Zaldarriaga 2019",
+      "Euclidean sensitive volume: no redshift, no expansion",
+      "H1 PSD estimated off-source from the first 512 s",
+      "optimal orientation and sky position, which makes this a horizon and not a range; day 4's factor of 2.26 is what separates the two",
+      "equal-mass binaries along the whole curve",
+      "waveform cut at f_ISCO, and the curve stopped at Mc = 80 Msun because above it f_ISCO falls below the 20 Hz band edge",
+      "fit window derived from BAND_FIXED_TOLERANCE = 0.999 (Mc <= 2.385) instead of the brief's [1.5, 5], which is too wide for the band to count as fixed"
+    ],
+    "from_library": "numpy for the fits and grids; the IMRPhenomD reference array ships with the course data.",
+    "from_scratch": "Implemented the SNR-distance-volume chain, the horizon curve, and the band-fixed criterion the fit window is derived from.",
+    "produced_by": "scripts/s03_horizon.py::fit_window_max",
+    "statement": "Largest chirp mass at which the ISCO cut still costs under 0.1% of sigma.",
+    "value": 2.3852478812533207
+  },
   "horizon_gw150914_mpc": {
     "choices": [
-      "threshold 8",
-      "Euclidean volume",
-      "off-source H1 PSD",
-      "optimal orientation",
-      "1.5-5 Msun fixed-band fit"
+      "detection threshold rho = 8, not the 9 of Roulet & Zaldarriaga 2019",
+      "Euclidean sensitive volume: no redshift, no expansion",
+      "H1 PSD estimated off-source from the first 512 s",
+      "optimal orientation and sky position, which makes this a horizon and not a range; day 4's factor of 2.26 is what separates the two",
+      "equal-mass binaries along the whole curve",
+      "waveform cut at f_ISCO, and the curve stopped at Mc = 80 Msun because above it f_ISCO falls below the 20 Hz band edge",
+      "fit window derived from BAND_FIXED_TOLERANCE = 0.999 (Mc <= 2.385) instead of the brief's [1.5, 5], which is too wide for the band to count as fixed"
     ],
-    "from_library": "numpy.",
-    "from_scratch": "Implemented SNR-distance scaling.",
+    "from_library": "numpy for the fits and grids; the IMRPhenomD reference array ships with the course data.",
+    "from_scratch": "Implemented the SNR-distance-volume chain, the horizon curve, and the band-fixed criterion the fit window is derived from.",
     "produced_by": "src/gwsel/horizon.py::horizon_distance",
-    "statement": "horizon_gw150914_mpc",
+    "statement": "Distance at which an optimally oriented GW150914 reaches rho = 8, in Mpc.",
     "value": 1969.8565304986864
   },
   "horizon_mchirp_exponent": {
     "choices": [
-      "threshold 8",
-      "Euclidean volume",
-      "off-source H1 PSD",
-      "optimal orientation",
-      "1.5-5 Msun fixed-band fit"
+      "detection threshold rho = 8, not the 9 of Roulet & Zaldarriaga 2019",
+      "Euclidean sensitive volume: no redshift, no expansion",
+      "H1 PSD estimated off-source from the first 512 s",
+      "optimal orientation and sky position, which makes this a horizon and not a range; day 4's factor of 2.26 is what separates the two",
+      "equal-mass binaries along the whole curve",
+      "waveform cut at f_ISCO, and the curve stopped at Mc = 80 Msun because above it f_ISCO falls below the 20 Hz band edge",
+      "fit window derived from BAND_FIXED_TOLERANCE = 0.999 (Mc <= 2.385) instead of the brief's [1.5, 5], which is too wide for the band to count as fixed"
     ],
-    "from_library": "numpy.",
-    "from_scratch": "Implemented SNR-distance scaling.",
-    "produced_by": "src/gwsel/horizon.py::horizon_distance",
-    "statement": "horizon_mchirp_exponent",
-    "value": 0.8333333333333315
+    "from_library": "numpy for the fits and grids; the IMRPhenomD reference array ships with the course data.",
+    "from_scratch": "Implemented the SNR-distance-volume chain, the horizon curve, and the band-fixed criterion the fit window is derived from.",
+    "produced_by": "scripts/s03_horizon.py::power_law_exponent",
+    "statement": "Power-law slope of horizon distance against chirp mass, over the derived fixed-band window.",
+    "value": 0.8313696686793761
+  },
+  "horizon_mchirp_exponent_brief_window": {
+    "choices": [
+      "detection threshold rho = 8, not the 9 of Roulet & Zaldarriaga 2019",
+      "Euclidean sensitive volume: no redshift, no expansion",
+      "H1 PSD estimated off-source from the first 512 s",
+      "optimal orientation and sky position, which makes this a horizon and not a range; day 4's factor of 2.26 is what separates the two",
+      "equal-mass binaries along the whole curve",
+      "waveform cut at f_ISCO, and the curve stopped at Mc = 80 Msun because above it f_ISCO falls below the 20 Hz band edge",
+      "fit window derived from BAND_FIXED_TOLERANCE = 0.999 (Mc <= 2.385) instead of the brief's [1.5, 5], which is too wide for the band to count as fixed"
+    ],
+    "from_library": "numpy for the fits and grids; the IMRPhenomD reference array ships with the course data.",
+    "from_scratch": "Implemented the SNR-distance-volume chain, the horizon curve, and the band-fixed criterion the fit window is derived from.",
+    "produced_by": "scripts/s03_horizon.py::power_law_exponent",
+    "statement": "The same slope over the day-3 brief's [1.5, 5] Msun window, which is too wide for the band to count as fixed.",
+    "value": 0.8219410348724752
+  },
+  "horizon_peak_mchirp": {
+    "choices": [
+      "detection threshold rho = 8, not the 9 of Roulet & Zaldarriaga 2019",
+      "Euclidean sensitive volume: no redshift, no expansion",
+      "H1 PSD estimated off-source from the first 512 s",
+      "optimal orientation and sky position, which makes this a horizon and not a range; day 4's factor of 2.26 is what separates the two",
+      "equal-mass binaries along the whole curve",
+      "waveform cut at f_ISCO, and the curve stopped at Mc = 80 Msun because above it f_ISCO falls below the 20 Hz band edge",
+      "fit window derived from BAND_FIXED_TOLERANCE = 0.999 (Mc <= 2.385) instead of the brief's [1.5, 5], which is too wide for the band to count as fixed"
+    ],
+    "from_library": "numpy for the fits and grids; the IMRPhenomD reference array ships with the course data.",
+    "from_scratch": "Implemented the SNR-distance-volume chain, the horizon curve, and the band-fixed criterion the fit window is derived from.",
+    "produced_by": "src/gwsel/horizon.py::horizon_curve",
+    "statement": "Chirp mass at which the horizon curve turns over, in Msun.",
+    "value": 27.79805281766254
+  },
+  "horizon_peak_mpc": {
+    "choices": [
+      "detection threshold rho = 8, not the 9 of Roulet & Zaldarriaga 2019",
+      "Euclidean sensitive volume: no redshift, no expansion",
+      "H1 PSD estimated off-source from the first 512 s",
+      "optimal orientation and sky position, which makes this a horizon and not a range; day 4's factor of 2.26 is what separates the two",
+      "equal-mass binaries along the whole curve",
+      "waveform cut at f_ISCO, and the curve stopped at Mc = 80 Msun because above it f_ISCO falls below the 20 Hz band edge",
+      "fit window derived from BAND_FIXED_TOLERANCE = 0.999 (Mc <= 2.385) instead of the brief's [1.5, 5], which is too wide for the band to count as fixed"
+    ],
+    "from_library": "numpy for the fits and grids; the IMRPhenomD reference array ships with the course data.",
+    "from_scratch": "Implemented the SNR-distance-volume chain, the horizon curve, and the band-fixed criterion the fit window is derived from.",
+    "produced_by": "src/gwsel/horizon.py::horizon_curve",
+    "statement": "Horizon distance at that turnover, in Mpc.",
+    "value": 1328.9385090147384
   },
   "l1_peak_snr": {
     "choices": [
@@ -173,30 +259,34 @@
   },
   "sensitive_volume_gpc3": {
     "choices": [
-      "threshold 8",
-      "Euclidean volume",
-      "off-source H1 PSD",
-      "optimal orientation",
-      "1.5-5 Msun fixed-band fit"
+      "detection threshold rho = 8, not the 9 of Roulet & Zaldarriaga 2019",
+      "Euclidean sensitive volume: no redshift, no expansion",
+      "H1 PSD estimated off-source from the first 512 s",
+      "optimal orientation and sky position, which makes this a horizon and not a range; day 4's factor of 2.26 is what separates the two",
+      "equal-mass binaries along the whole curve",
+      "waveform cut at f_ISCO, and the curve stopped at Mc = 80 Msun because above it f_ISCO falls below the 20 Hz band edge",
+      "fit window derived from BAND_FIXED_TOLERANCE = 0.999 (Mc <= 2.385) instead of the brief's [1.5, 5], which is too wide for the band to count as fixed"
     ],
-    "from_library": "numpy.",
-    "from_scratch": "Implemented SNR-distance scaling.",
-    "produced_by": "src/gwsel/horizon.py::horizon_distance",
-    "statement": "sensitive_volume_gpc3",
+    "from_library": "numpy for the fits and grids; the IMRPhenomD reference array ships with the course data.",
+    "from_scratch": "Implemented the SNR-distance-volume chain, the horizon curve, and the band-fixed criterion the fit window is derived from.",
+    "produced_by": "src/gwsel/horizon.py::sensitive_volume_euclidean",
+    "statement": "Euclidean volume inside that horizon, in Gpc^3.",
     "value": 32.017867204493655
   },
   "sigma_imr_h1": {
     "choices": [
-      "threshold 8",
-      "Euclidean volume",
-      "off-source H1 PSD",
-      "optimal orientation",
-      "1.5-5 Msun fixed-band fit"
+      "detection threshold rho = 8, not the 9 of Roulet & Zaldarriaga 2019",
+      "Euclidean sensitive volume: no redshift, no expansion",
+      "H1 PSD estimated off-source from the first 512 s",
+      "optimal orientation and sky position, which makes this a horizon and not a range; day 4's factor of 2.26 is what separates the two",
+      "equal-mass binaries along the whole curve",
+      "waveform cut at f_ISCO, and the curve stopped at Mc = 80 Msun because above it f_ISCO falls below the 20 Hz band edge",
+      "fit window derived from BAND_FIXED_TOLERANCE = 0.999 (Mc <= 2.385) instead of the brief's [1.5, 5], which is too wide for the band to count as fixed"
     ],
-    "from_library": "numpy.",
-    "from_scratch": "Implemented SNR-distance scaling.",
-    "produced_by": "src/gwsel/horizon.py::horizon_distance",
-    "statement": "sigma_imr_h1",
+    "from_library": "numpy for the fits and grids; the IMRPhenomD reference array ships with the course data.",
+    "from_scratch": "Implemented the SNR-distance-volume chain, the horizon curve, and the band-fixed criterion the fit window is derived from.",
+    "produced_by": "src/gwsel/horizon.py::sigma",
+    "statement": "Optimal SNR of the shipped IMRPhenomD waveform against the H1 PSD.",
     "value": 39.39713060997373
   },
   "snr_taylorf2_real_data": {
@@ -227,6 +317,22 @@
     "produced_by": "src/gwsel/filtering.py::search",
     "statement": "L1 arrival time minus H1 arrival time, in ms.",
     "value": -7.080078125
+  },
+  "volume_threshold_log_slope": {
+    "choices": [
+      "detection threshold rho = 8, not the 9 of Roulet & Zaldarriaga 2019",
+      "Euclidean sensitive volume: no redshift, no expansion",
+      "H1 PSD estimated off-source from the first 512 s",
+      "optimal orientation and sky position, which makes this a horizon and not a range; day 4's factor of 2.26 is what separates the two",
+      "equal-mass binaries along the whole curve",
+      "waveform cut at f_ISCO, and the curve stopped at Mc = 80 Msun because above it f_ISCO falls below the 20 Hz band edge",
+      "fit window derived from BAND_FIXED_TOLERANCE = 0.999 (Mc <= 2.385) instead of the brief's [1.5, 5], which is too wide for the band to count as fixed"
+    ],
+    "from_library": "numpy for the fits and grids; the IMRPhenomD reference array ships with the course data.",
+    "from_scratch": "Implemented the SNR-distance-volume chain, the horizon curve, and the band-fixed criterion the fit window is derived from.",
+    "produced_by": "scripts/s03_horizon.py::volume_threshold_slope",
+    "statement": "d ln V / d ln rho_thr, measured through the same functions the rest of the analysis uses.",
+    "value": -3.0
   },
   "welch_vs_gwpy_pct": {
     "choices": [

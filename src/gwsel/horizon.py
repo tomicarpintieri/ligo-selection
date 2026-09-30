@@ -59,14 +59,18 @@ def horizon_curve(mchirp_grid, psd, freqs, rho_thr=8.0, **waveform_kwargs):
     which is the condition under which 5/6 is exact. Record that as a choice.
     """
     distance = waveform_kwargs.pop("distance_mpc", 400.0)
+    # Read the cutoff ONCE.  This pop() used to sit inside the loop, where it
+    # consumed the key on the first iteration: mass 1 of 80 got the ISCO cutoff
+    # and the other 79 got None.  The published curve therefore mixed two
+    # physics and never turned over -- 5204 Mpc at Mc = 80 where the answer is
+    # 359.  test_horizon_turns_over is the check that now holds it in place.
+    f_cut = waveform_kwargs.pop("f_cut", "isco")
     eta = 0.25
     out = []
     for mc in mchirp_grid:
-        total = mc / eta**(3/5)
-        mass = total/2
-        cutoff = waveform_kwargs.pop("f_cut", None)
+        total = mc / eta ** (3 / 5)
+        mass = total / 2
         h, _ = waveform.spa_inspiral(freqs, mass, mass, distance,
-                                     f_cut=waveform.f_isco(total) if cutoff == "isco" else "isco",
-                                     **waveform_kwargs)
+                                     f_cut=f_cut, **waveform_kwargs)
         out.append(horizon_distance(sigma(h, psd, freqs, 20, 1024), distance, rho_thr))
     return np.asarray(mchirp_grid), np.asarray(out)
