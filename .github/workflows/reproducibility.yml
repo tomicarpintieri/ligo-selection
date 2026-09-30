@@ -1,0 +1,33 @@
+name: Reproducibility
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  reproduce:
+    name: Reproduce analysis on Windows / Python 3.12.10
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12.10"
+      - name: Install exact analysis environment
+        run: python -m pip install --upgrade pip && python -m pip install -r requirements.lock
+      - name: Fetch pinned inputs, regenerate outputs, and run all checks
+        run: python scripts/reproduce.py
+      - name: Upload successful-run record
+        uses: actions/upload-artifact@v4
+        with:
+          name: reproduction-${{ github.sha }}
+          path: |
+            artifacts/reproduction.json
+            results.json
+            page/index.html
+            figures/
+          if-no-files-found: error

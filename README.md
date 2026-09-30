@@ -37,11 +37,9 @@ Nobody ran one. This is that campaign.
 
 ```bash
 git clone <this repo> && cd ligo-selection
-python -m venv .venv
-.venv/Scripts/python -m pip install -r requirements.txt     # POSIX: .venv/bin/python
-.venv/Scripts/python scripts/fetch_data.py                  # 40 MB, hash-checked
-.venv/Scripts/python -m pytest -q                           # the checks
-.venv/Scripts/python run_all.py                             # regenerate everything
+python3.12 -m venv .venv
+.venv/bin/python -m pip install -r requirements.lock
+.venv/bin/python scripts/reproduce.py                        # fetch, regenerate, test, record
 ```
 
 ## Reproduce from a clean clone
@@ -51,15 +49,43 @@ On Windows, the full reproduction is:
 ```powershell
 git clone https://github.com/tomicarpintieri/ligo-selection.git
 cd ligo-selection
-py -m venv .venv
-.venv\Scripts\python.exe -m pip install -r requirements.txt
-.venv\Scripts\python.exe scripts\fetch_data.py
-.venv\Scripts\python.exe run_all.py
+py -3.12 -m venv .venv
+.venv\Scripts\python.exe -m pip install -r requirements.lock
+.venv\Scripts\python.exe scripts\reproduce.py
 ```
 
-This produces `results.json`, the committed analysis figures, `page/index.html`,
-and a green test suite. Each stage script can also be run independently in the
-order `s01_control.py` through `s05_network.py`.
+Use **Python 3.12.10**: this is the interpreter used for the pinned package
+versions and recorded results. On Windows, `py -3.12 -m venv .venv` selects it
+explicitly. The command produces `results.json`, the committed analysis figures,
+`page/index.html`, a green test suite, and `artifacts/reproduction.json`.
+That report records the Git revision, interpreter, platform, exact installed
+package versions, input hashes, and output hashes for this successful run. The
+fully resolved package set is in `requirements.lock`; `requirements.txt` records
+only the direct analysis dependencies. Each
+stage script can also be run independently in the order `s01_control.py` through
+`s05_network.py`.
+
+## Continuous reproducibility
+
+GitHub Actions runs `scripts/reproduce.py` on every push and pull request using
+Windows and Python 3.12.10. A successful run uploads the generated report,
+results, page, and figures as an artifact. The input URL in `data/MANIFEST.json`
+is pinned to an upstream course commit; SHA-256 verification remains mandatory
+before any analysis reads an input.
+
+## Rebuild the presentation
+
+The scientific environment stays separate from slide-generation tools. To
+regenerate the five-minute presentation from the validated figures:
+
+```powershell
+py -3.12 -m venv .venv-presentation
+.venv-presentation\Scripts\python.exe -m pip install -r requirements-presentation.lock
+.venv-presentation\Scripts\python.exe scripts\make_presentation_5min.py
+```
+
+This writes `presentacion_final_ligo_5min.pptx`. Its speaker notes and the
+timed delivery guide are included with the repository.
 
 ## Deliverables and current scope
 
@@ -75,8 +101,8 @@ campaign are explicitly future work, not claims of this repository.
 ## Hand-off checklist
 
 Before presenting or handing the repository to a new agent, run
-`.venv\Scripts\python.exe run_all.py`, confirm that `pytest` is green, and
-inspect `page/index.html`. The presentation is versioned at the repository root.
+`.venv\Scripts\python.exe scripts\reproduce.py`, confirm that it creates
+`artifacts/reproduction.json`, and inspect `page/index.html`. The presentation is versioned at the repository root.
 The presentation PDF must be exported from that PPTX on a machine with an Office
 or LibreOffice renderer; no such renderer is installed in this environment.
 
@@ -86,7 +112,8 @@ either analytic, previously published, or measured by someone else. Nothing here
 is asserted on our say-so.
 
 `scripts/fetch_data.py` downloads the strain and reference waveforms from the
-public course repository and verifies them against `data/MANIFEST.json`. If you
+public course repository at a pinned upstream commit and verifies them against
+`data/MANIFEST.json`. If you
 already have a checkout of that tree, `--from-course PATH` copies instead. A
 hash mismatch is a hard failure: every number in `results.json` is a statement
 about those exact bytes.

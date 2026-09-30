@@ -3,6 +3,7 @@
 data/*.npz
 
 .venv/
+.venv-presentation/
 __pycache__/
 *.pyc
 .pytest_cache/
@@ -13,6 +14,7 @@ __pycache__/
 
 # Working scratch. Anything that has to survive belongs in results.json.
 .tmp/
+artifacts/
 logs/*
 !logs/.gitkeep
 

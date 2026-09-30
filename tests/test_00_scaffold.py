@@ -50,11 +50,11 @@ def test_waveform_metadata_is_what_we_assume(waveforms):
 
 
 def test_installed_versions_match_requirements():
-    """The environment is the one every recorded number was measured in."""
+    """The environment is the exact resolved one that produced the results."""
     from importlib.metadata import version
 
     pinned = {}
-    for line in (ROOT / "requirements.txt").read_text(encoding="utf-8").splitlines():
+    for line in (ROOT / "requirements.lock").read_text(encoding="utf-8").splitlines():
         m = re.match(r"^([A-Za-z0-9_.-]+)==([0-9][0-9A-Za-z.+-]*)\s*$", line.strip())
         if m:
             pinned[m.group(1)] = m.group(2)

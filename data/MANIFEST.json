@@ -1,6 +1,8 @@
 {
-  "source": "https://raw.githubusercontent.com/matiaszaldarriaga/GW-AI-course/main/day2/data/",
-  "note": "The four arrays day 2 of the course ships. They are public, so this repository fetches them instead of carrying 40 MB of binary. Hashes taken 2026-09-11 from the copy in the course tree and confirmed against the same files served over HTTPS.",
+  "source": "https://raw.githubusercontent.com/matiaszaldarriaga/GW-AI-course/75ba1e0b01df221c7325226d030b22e3a0855e30/day2/data/",
+  "source_repository": "https://github.com/matiaszaldarriaga/GW-AI-course",
+  "source_commit": "75ba1e0b01df221c7325226d030b22e3a0855e30",
+  "note": "The four arrays day 2 of the course ships. They are public, so this repository fetches them instead of carrying 40 MB of binary. The URL is pinned to the recorded upstream commit; SHA-256 verification is still mandatory. Hashes taken 2026-09-11 from the copy in the course tree and confirmed against the same bytes served over HTTPS.",
   "files": {
     "H1_gw150914.npz": {
       "sha256": "437dc99099ebd92b1736cba732ba2304690590e6a4eb82e17b09c147b8ae8d99",
