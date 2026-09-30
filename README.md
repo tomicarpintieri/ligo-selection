@@ -68,10 +68,13 @@ stage script can also be run independently in the order `s01_control.py` through
 ## Continuous reproducibility
 
 GitHub Actions runs `scripts/reproduce.py` on every push and pull request using
-Windows and Python 3.12.10. A successful run uploads the generated report,
-results, page, and figures as an artifact. The input URL in `data/MANIFEST.json`
-is pinned to an upstream course commit; SHA-256 verification remains mandatory
-before any analysis reads an input.
+Windows and Python 3.12.10. It creates the same `.venv` used in the documented
+local instructions, so the environment check is exercised rather than bypassed.
+A successful run uploads the generated report, results, page, and figures as an
+artifact. The input URL in `data/MANIFEST.json` is pinned to an upstream course
+commit; SHA-256 verification remains mandatory before any analysis reads an
+input. A clone needs Internet only to retrieve those four public input files
+(about 40 MB); they are deliberately not committed to this repository.
 
 ## Rebuild the presentation
 

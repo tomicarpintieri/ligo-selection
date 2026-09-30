@@ -13,14 +13,16 @@ jobs:
     name: Reproduce analysis on Windows / Python 3.12.10
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12.10"
-      - name: Install exact analysis environment
-        run: python -m pip install --upgrade pip && python -m pip install -r requirements.lock
+      - name: Create the documented project environment
+        run: python -m venv .venv
+      - name: Install exact analysis environment in .venv
+        run: .venv\Scripts\python.exe -m pip install --upgrade pip && .venv\Scripts\python.exe -m pip install -r requirements.lock
       - name: Fetch pinned inputs, regenerate outputs, and run all checks
-        run: python scripts/reproduce.py
+        run: .venv\Scripts\python.exe scripts/reproduce.py
       - name: Upload successful-run record
         uses: actions/upload-artifact@v4
         with:
