@@ -83,10 +83,10 @@ s.background.fill.solid()
 s.background.fill.fore_color.rgb = NAVY
 rect(s, 0.75, 0.78, 1.72, 0.34, TEAL)
 add_text(s, "PROYECTO FINAL", 0.82, 0.76, 1.56, 0.35, 10, NAVY, True, align=PP_ALIGN.CENTER)
-add_text(s, "¿Qué fusiones de agujeros negros\npuede ver LIGO?", 0.78, 1.55, 10.8, 1.7, 35, WHITE, True)
-add_text(s, "Sesgo de selección y observabilidad\nen el caso GW150914", 0.82, 3.55, 7.2, 0.85, 21, MUTED)
+add_text(s, "¿De qué es ciego LIGO?\nEfectos de selección en el catálogo de fusiones", 0.78, 1.42, 11.45, 1.85, 31, WHITE, True)
+add_text(s, "Proyecto final · Ondas Gravitacionales e Investigación Asistida por IA", 0.82, 3.58, 10.7, 0.42, 17, MUTED)
 rect(s, 0.82, 5.25, 3.9, 0.08, ORANGE, radius=False)
-add_text(s, "Tomás Carpintieri · Agustín Miculicich\nUniversidad de Buenos Aires", 0.82, 5.55, 5.0, 0.65, 16, WHITE)
+add_text(s, "Tomás Carpintieri · Agustín Miculicich\nUniversidad de Buenos Aires", 0.82, 5.55, 5.8, 0.65, 16, WHITE)
 add_text(s, "5 min", 11.1, 6.45, 1.3, 0.35, 14, TEAL, True, align=PP_ALIGN.RIGHT)
 note(s, "20 s. Presentar la pregunta guía: una detección no es una muestra neutral del universo; el detector favorece ciertas fuentes.")
 
@@ -161,6 +161,19 @@ add_text(s, "Siguiente paso", 1.0, 4.05, 3.0, .42, 14, TEAL, True)
 add_text(s, "Campaña de inyecciones: simular una población, insertarla en datos reales y medir qué fracción recupera la red.", 1.0, 4.58, 10.65, .67, 24, WHITE, True)
 add_text(s, "Gracias", 10.25, 6.15, 2.0, .45, 23, TEAL, True, align=PP_ALIGN.RIGHT)
 note(s, "25 s. Cerrar con el mensaje principal y el próximo paso concreto: una campaña de inyecciones completa. Abrir preguntas.")
+
+# 7. Questions
+s = prs.slides.add_slide(prs.slide_layouts[6])
+s.background.fill.solid()
+s.background.fill.fore_color.rgb = NAVY
+rect(s, .78, 1.0, 1.9, .34, TEAL)
+add_text(s, "PROYECTO FINAL", .85, .98, 1.75, .35, 10, NAVY, True, align=PP_ALIGN.CENTER)
+add_text(s, "Gracias por escucharnos", 1.0, 2.35, 11.3, .75, 35, WHITE, True, align=PP_ALIGN.CENTER)
+add_text(s, "Esperamos sus preguntas", 1.0, 3.35, 11.3, .45, 21, TEAL, align=PP_ALIGN.CENTER)
+rect(s, 4.75, 4.38, 3.85, .07, ORANGE, radius=False)
+add_text(s, "Tomás Carpintieri · Agustín Miculicich", 1.0, 5.25, 11.3, .4, 16, MUTED, align=PP_ALIGN.CENTER)
+add_text(s, "Universidad de Buenos Aires", 1.0, 5.75, 11.3, .35, 14, MUTED, align=PP_ALIGN.CENTER)
+note(s, "Dejar esta diapositiva visible durante las preguntas. No hace falta decir más que: gracias por escucharnos; esperamos sus preguntas.")
 
 prs.save(OUT)
 print(OUT)
