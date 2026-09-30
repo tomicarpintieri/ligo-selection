@@ -154,11 +154,11 @@ add_text(s, "Un resultado confiable no es solo un número: es un número que pue
 note(s, "45 s. Esta fue la dificultad y el aprendizaje del proyecto: no aceptar un número solo porque parece razonable. El pipeline tiene datos hasheados, tests y procedencia. Una limitación importante: inspiral-only subestima la detectabilidad de sistemas pesados como GW150914.")
 
 # 6. Closing
-s = base_slide(prs, "Cierre", "Para estudiar poblaciones, primero hay que modelar qué deja pasar el detector")
+s = base_slide(prs, "Cierre", "Modelar la selección es el primer paso")
 rect(s, .9, 2.15, 11.55, 1.1, RGBColor(24, 47, 70))
 add_text(s, "El universo observado por LIGO es una población filtrada por distancia, masa y geometría.", 1.22, 2.38, 10.9, .55, 21, WHITE, True, align=PP_ALIGN.CENTER)
 add_text(s, "Siguiente paso", 1.0, 4.05, 3.0, .42, 14, TEAL, True)
-add_text(s, "Campaña de inyecciones: simular una población, insertarla en datos reales y medir qué fracción recupera la red.", 1.0, 4.58, 10.65, .67, 24, WHITE, True)
+add_text(s, "Campaña de inyecciones: simular una población, insertarla en datos reales y medir qué fracción recupera la red.", 1.0, 4.48, 10.65, 1.05, 20, WHITE, True)
 add_text(s, "Gracias", 10.25, 6.15, 2.0, .45, 23, TEAL, True, align=PP_ALIGN.RIGHT)
 note(s, "25 s. Cerrar con el mensaje principal y el próximo paso concreto: una campaña de inyecciones completa. Abrir preguntas.")
 
