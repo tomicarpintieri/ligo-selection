@@ -31,6 +31,9 @@ entre sitios.
 - La respuesta conjunta H1–L1 cubre esos puntos ciegos de forma complementaria.
   El máximo tiempo de vuelo geométrico calculado con coordenadas de LIGO y
   WGS84 es 10.013 ms.
+- El piloto de inyecciones H1–L1 recupera el 39.6 % de 96 fuentes inyectadas,
+  frente a 4.2 % de cruces por encima del umbral en el control sin inyección.
+  La eficiencia se registra por distancia en `figures/f07_injection_efficiency.png`.
 
 ## Validación y reproducibilidad
 
@@ -51,10 +54,12 @@ La procedencia de cada número y figura está en `provenance/numbers.json` y
 
 TaylorF2 describe solamente el inspiral. Para sistemas pesados como GW150914
 subestima la detectabilidad porque no incluye la fusión y el ringdown. El
-volumen reportado es euclídeo y el análisis no ejecuta todavía una búsqueda
-coherente ni una campaña poblacional de inyecciones.
+volumen reportado es euclídeo. El piloto de inyecciones usa esa forma de onda
+SPA y una SNR de red en cuadratura, por lo que no es todavía una campaña IMR ni
+una búsqueda coherente.
 
-El siguiente paso es inyectar una población simulada en datos reales y medir la
-fracción recuperada por la red. Esa campaña permitiría convertir esta base
-validada en una función de selección directamente utilizable para inferencia de
+El siguiente paso es reemplazar el piloto por formas de onda IMR para una grilla
+de masas, calibrar el umbral con una tasa de falsos positivos más grande y usar
+una estadística coherente. Esa campaña permitiría convertir esta base validada
+en una función de selección directamente utilizable para inferencia de
 poblaciones.

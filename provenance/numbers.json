@@ -346,6 +346,96 @@
     "statement": "Horizon distance at that turnover, in Mpc.",
     "value": 1328.9385090147384
   },
+  "injection_background_false_alarm_fraction": {
+    "choices": [
+      "96 injections",
+      "population seed 20261001",
+      "noise-window seed 20261002",
+      "uniform component masses 5\u201320 Msun",
+      "uniform-in-volume distances 100\u2013600 Mpc",
+      "isotropic sky, polarization and inclination",
+      "SPA inspiral-only waveform",
+      "incoherent quadrature network SNR",
+      "network threshold 8"
+    ],
+    "from_library": "numpy and the project matched-filter implementation.",
+    "from_scratch": "Injected the sampled population into off-source H1 and L1 strain and recovered it; the background control uses the same windows without injection.",
+    "produced_by": "scripts/s06_injections.py::main",
+    "statement": "injection_background_false_alarm_fraction",
+    "value": 0.041666666666666664
+  },
+  "injection_count": {
+    "choices": [
+      "96 injections",
+      "population seed 20261001",
+      "noise-window seed 20261002",
+      "uniform component masses 5\u201320 Msun",
+      "uniform-in-volume distances 100\u2013600 Mpc",
+      "isotropic sky, polarization and inclination",
+      "SPA inspiral-only waveform",
+      "incoherent quadrature network SNR",
+      "network threshold 8"
+    ],
+    "from_library": "numpy and the project matched-filter implementation.",
+    "from_scratch": "Injected the sampled population into off-source H1 and L1 strain and recovered it; the background control uses the same windows without injection.",
+    "produced_by": "scripts/s06_injections.py::main",
+    "statement": "injection_count",
+    "value": 96.0
+  },
+  "injection_mean_network_snr": {
+    "choices": [
+      "96 injections",
+      "population seed 20261001",
+      "noise-window seed 20261002",
+      "uniform component masses 5\u201320 Msun",
+      "uniform-in-volume distances 100\u2013600 Mpc",
+      "isotropic sky, polarization and inclination",
+      "SPA inspiral-only waveform",
+      "incoherent quadrature network SNR",
+      "network threshold 8"
+    ],
+    "from_library": "numpy and the project matched-filter implementation.",
+    "from_scratch": "Injected the sampled population into off-source H1 and L1 strain and recovered it; the background control uses the same windows without injection.",
+    "produced_by": "scripts/s06_injections.py::main",
+    "statement": "injection_mean_network_snr",
+    "value": 8.997975379441028
+  },
+  "injection_network_threshold": {
+    "choices": [
+      "96 injections",
+      "population seed 20261001",
+      "noise-window seed 20261002",
+      "uniform component masses 5\u201320 Msun",
+      "uniform-in-volume distances 100\u2013600 Mpc",
+      "isotropic sky, polarization and inclination",
+      "SPA inspiral-only waveform",
+      "incoherent quadrature network SNR",
+      "network threshold 8"
+    ],
+    "from_library": "numpy and the project matched-filter implementation.",
+    "from_scratch": "Injected the sampled population into off-source H1 and L1 strain and recovered it; the background control uses the same windows without injection.",
+    "produced_by": "scripts/s06_injections.py::main",
+    "statement": "injection_network_threshold",
+    "value": 8.0
+  },
+  "injection_recovery_fraction": {
+    "choices": [
+      "96 injections",
+      "population seed 20261001",
+      "noise-window seed 20261002",
+      "uniform component masses 5\u201320 Msun",
+      "uniform-in-volume distances 100\u2013600 Mpc",
+      "isotropic sky, polarization and inclination",
+      "SPA inspiral-only waveform",
+      "incoherent quadrature network SNR",
+      "network threshold 8"
+    ],
+    "from_library": "numpy and the project matched-filter implementation.",
+    "from_scratch": "Injected the sampled population into off-source H1 and L1 strain and recovered it; the background control uses the same windows without injection.",
+    "produced_by": "scripts/s06_injections.py::main",
+    "statement": "injection_recovery_fraction",
+    "value": 0.3958333333333333
+  },
   "l1_peak_gps": {
     "choices": [
       "4 s Welch segments with 50% overlap",

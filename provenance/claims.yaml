@@ -88,6 +88,23 @@ claims:
   numbers:
   - time_delay_l1_minus_h1_ms
   - h1_l1_light_travel_ms
+- id: injection_pilot_measures_selection
+  statement: A reproducible H1–L1 injection-and-recovery pilot measures detection efficiency
+    as a function of distance for an isotropic population.
+  evidence:
+  - tests/test_07_injections.py
+  - scripts/s06_injections.py
+  numbers:
+  - injection_count
+  - injection_recovery_fraction
+  - injection_mean_network_snr
+- id: injection_pilot_is_inspiral_only
+  statement: 'The pilot is not an IMR population campaign: it uses the validated SPA inspiral
+    waveform and therefore remains conservative for heavy systems.'
+  evidence:
+  - TASKS/day-2-waveform.md
+  - src/gwsel/injections.py
+  numbers: []
 figures:
 - file: figures/f01_snr_timeseries.png
   produced_by: src/gwsel/figures.py::f01_snr_timeseries
@@ -200,3 +217,20 @@ figures:
   - 24 sidereal-hour frames
   supports:
   - detectability_depends_on_time_of_day
+- file: figures/f07_injection_efficiency.png
+  produced_by: src/gwsel/figures.py::f07_injection_efficiency
+  shows: Binned H1–L1 recovery efficiency against injected distance.
+  from_scratch: Injected and recovered an isotropic source population in off-source strain.
+  from_library: matplotlib.
+  choices:
+  - 96 injections
+  - population seed 20261001
+  - noise-window seed 20261002
+  - uniform component masses 5–20 Msun
+  - uniform-in-volume distances 100–600 Mpc
+  - isotropic sky, polarization and inclination
+  - SPA inspiral-only waveform
+  - incoherent quadrature network SNR
+  - network threshold 8
+  supports:
+  - injection_pilot_measures_selection

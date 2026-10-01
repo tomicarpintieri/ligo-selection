@@ -186,3 +186,17 @@ def f06_rotation(gps, frames=24):
     panel_figure.colorbar(image, ax=axes.ravel().tolist(), orientation="horizontal", pad=.08, label="network response power")
     panels = save(panel_figure, "f06_rotation_panels.png")
     return "figures/f06_rotation.gif", panels
+
+
+def f07_injection_efficiency(measured):
+    """Recovery efficiency of the reproducible injection pilot versus distance."""
+    fig, ax = plt.subplots(figsize=(7.5, 4.6))
+    valid = np.isfinite(measured["efficiency"])
+    ax.errorbar(measured["distance_mpc"][valid], measured["efficiency"][valid],
+                yerr=measured["uncertainty"][valid], fmt="o-", color=TEAL,
+                label="injected and recovered")
+    ax.axhline(.5, color=MUTED, ls=":", label="50% efficiency")
+    ax.set(xlabel="Luminosity distance (Mpc)", ylabel="Detection efficiency",
+           ylim=(-.05, 1.05), title="H1–L1 injection-recovery pilot")
+    ax.legend()
+    return save(fig, "f07_injection_efficiency.png")

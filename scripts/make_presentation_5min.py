@@ -160,10 +160,11 @@ note(s, "45 s. Esta fue la dificultad y el aprendizaje del proyecto: un test rev
 s = base_slide(prs, "Cierre", "Modelar la selección es el primer paso")
 rect(s, .9, 2.15, 11.55, 1.1, RGBColor(24, 47, 70))
 add_text(s, "El universo observado por LIGO es una población filtrada por distancia, masa y geometría.", 1.22, 2.38, 10.9, .55, 21, WHITE, True, align=PP_ALIGN.CENTER)
+add_text(s, f"Hallazgo: favorece fuentes cercanas, más masivas y bien orientadas. El piloto recuperó {RESULTS['injection_recovery_fraction']:.1%} de inyecciones, frente a {RESULTS['injection_background_false_alarm_fraction']:.1%} de fondo.", 1.0, 3.48, 11.2, .4, 13, MUTED, True, align=PP_ALIGN.CENTER)
 add_text(s, "Siguiente paso", 1.0, 4.05, 3.0, .42, 14, TEAL, True)
-add_text(s, "Campaña de inyecciones: simular una población, insertarla en datos reales y medir qué fracción recupera la red.", 1.0, 4.48, 10.65, 1.05, 20, WHITE, True)
+add_text(s, "Campaña IMR: ampliar la población, incluir fusión y ringdown, y medir la función de selección de la red.", 1.0, 4.48, 10.65, 1.05, 20, WHITE, True)
 add_text(s, "Gracias", 10.25, 6.15, 2.0, .45, 23, TEAL, True, align=PP_ALIGN.RIGHT)
-note(s, "25 s. Cerrar con el mensaje principal y el próximo paso concreto: una campaña de inyecciones completa. Abrir preguntas.")
+note(s, "25 s. Cerrar con el resultado: el catálogo favorece fuentes cercanas, masivas y bien orientadas. El piloto en ruido real recuperó 39.6% frente a 4.2% de fondo. Aclarar que el próximo paso es IMR para cubrir bien sistemas pesados. Abrir preguntas.")
 
 # 7. Questions
 s = prs.slides.add_slide(prs.slide_layouts[6])
