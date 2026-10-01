@@ -34,4 +34,6 @@ RHO_THR = 8.0              # the single-detector SNR a source must beat to count
 # Published or previously measured numbers we test against. Not inputs to any
 # calculation -- targets. Each one names where it comes from.
 SIDEREAL_DAY_S = 86164.0905        # s, one rotation of the Earth w.r.t. the stars
-H1_L1_LIGHT_TRAVEL_MS = 10.002     # ms, the published H1-L1 separation over c
+# ms.  Computed from the LIGO T030215 site coordinates using WGS84 Earth-fixed
+# positions; the note quotes the same baseline as approximately 10 ms.
+H1_L1_LIGHT_TRAVEL_MS = 10.013

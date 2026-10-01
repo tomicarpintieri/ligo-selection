@@ -52,6 +52,42 @@ claims:
   - horizon_fit_window_max_mchirp
   - horizon_peak_mchirp
   - horizon_peak_mpc
+- id: detector_has_blind_spots
+  statement: An L-shaped detector has four exact geometric blind directions in its detector
+    frame.
+  evidence:
+  - tests/test_04_antenna.py
+  numbers:
+  - sky_mean_fplus_squared
+  - sky_mean_fcross_squared
+- id: range_is_2p26_below_horizon
+  statement: The volume-equivalent detector range is 2.2649 times smaller than its optimally
+    oriented horizon.
+  evidence:
+  - tests/test_04_antenna.py
+  numbers:
+  - horizon_over_range_factor
+  - rms_projection_factor
+- id: network_covers_the_blind_spots
+  statement: The combined H1–L1 response has no common blind direction on the sampled sky.
+  evidence:
+  - tests/test_05_network.py
+  numbers:
+  - network_sky_average_gain
+- id: detectability_depends_on_time_of_day
+  statement: Because detector response is Earth-fixed, the network response sweeps across
+    celestial coordinates in one sidereal day.
+  evidence:
+  - figures/f06_rotation.gif
+  numbers: []
+- id: gw150914_timing_is_consistent
+  statement: The measured −7.08 ms H1–L1 delay selects a non-empty sky ring; it is a consistency
+    check, not a localisation.
+  evidence:
+  - tests/test_05_network.py
+  numbers:
+  - time_delay_l1_minus_h1_ms
+  - h1_l1_light_travel_ms
 figures:
 - file: figures/f01_snr_timeseries.png
   produced_by: src/gwsel/figures.py::f01_snr_timeseries
@@ -103,3 +139,64 @@ figures:
   supports:
   - threshold_is_a_distance
   - selection_tilts_towards_heavy
+- file: figures/f04_antenna_pattern.png
+  produced_by: src/gwsel/figures.py::f04_antenna_pattern
+  shows: Detector-frame antenna response and its four exact null directions.
+  from_scratch: Evaluated the analytic antenna pattern on a regular angular grid.
+  from_library: matplotlib.
+  choices:
+  - 4,000,000 Monte-Carlo samples
+  - random seed 0
+  - theta measured from detector zenith
+  - phi measured from the x arm
+  - psi as polarization angle
+  - uniform cos(theta) for isotropic sky sampling
+  supports:
+  - detector_has_blind_spots
+  - range_is_2p26_below_horizon
+- file: figures/f05_network_skymap.png
+  produced_by: src/gwsel/figures.py::f05_network_skymap
+  shows: H1, L1 and combined celestial response, with the −7.08 ms timing ring.
+  from_scratch: Evaluated both detector antenna patterns and the geometric delay over a sky
+    grid.
+  from_library: matplotlib.
+  choices:
+  - 100,000 isotropic sky directions
+  - random seed 0
+  - GPS 1126259462.4
+  - network response as sum of detector response squared
+  - LIGO T030215 H1/L1 site coordinates
+  - WGS84 Earth-fixed baseline for the light-travel bound
+  supports:
+  - network_covers_the_blind_spots
+  - gw150914_timing_is_consistent
+- file: figures/f06_rotation.gif
+  produced_by: src/gwsel/figures.py::f06_rotation
+  shows: A sidereal day of combined network response sweeping across the celestial sphere.
+  from_scratch: Evaluated the Earth-fixed antenna pattern in 24 frames.
+  from_library: matplotlib Pillow writer.
+  choices:
+  - 100,000 isotropic sky directions
+  - random seed 0
+  - GPS 1126259462.4
+  - network response as sum of detector response squared
+  - LIGO T030215 H1/L1 site coordinates
+  - WGS84 Earth-fixed baseline for the light-travel bound
+  - 24 sidereal-hour frames
+  supports:
+  - detectability_depends_on_time_of_day
+- file: figures/f06_rotation_panels.png
+  produced_by: src/gwsel/figures.py::f06_rotation
+  shows: Four static frames sampled from the sidereal-day response sweep.
+  from_scratch: Evaluated the Earth-fixed antenna pattern at four sidereal hours.
+  from_library: matplotlib.
+  choices:
+  - 100,000 isotropic sky directions
+  - random seed 0
+  - GPS 1126259462.4
+  - network response as sum of detector response squared
+  - LIGO T030215 H1/L1 site coordinates
+  - WGS84 Earth-fixed baseline for the light-travel bound
+  - 24 sidereal-hour frames
+  supports:
+  - detectability_depends_on_time_of_day

@@ -30,6 +30,17 @@ DETECTORS = {
     "L1": Detector(np.deg2rad(30.563), np.deg2rad(-90.774), -6.6, np.deg2rad(197.7165)),
 }
 
+# GPS is continuous while UTC inserted leap seconds.  Each entry is the first
+# GPS second after a UTC leap second, paired implicitly with its 1-based count.
+# The table is current through the 2017-01-01 leap second (18 seconds), which
+# covers every GPS epoch used by this project.  Keeping it local makes the
+# conversion reproducible without downloading IERS data at run time.
+GPS_LEAP_THRESHOLDS = np.array([
+    46828801, 78364802, 109900803, 173059204, 252028805, 315187206,
+    346723207, 393984008, 425520009, 457056010, 504489611, 551750412,
+    599184013, 820108814, 914803215, 1025136016, 1119744017, 1167264018,
+], dtype=float)
+
 
 def response(theta, phi, psi):
     """F_plus and F_cross in the DETECTOR frame. No Earth, no time.
@@ -92,8 +103,12 @@ def gmst_from_gps(gps):
       gmst(t + 86164.0905 s) - gmst(t) = 2 pi   to 1e-6 rad
       agrees with astropy.time                  to 1e-4 rad
     """
-    # IAU 1982 expression, GPS converted to Julian date via the Unix epoch.
-    jd = np.asarray(gps) / 86400.0 + 2444244.5
+    # IAU 1982 expression.  UTC, rather than GPS, is the time scale of the
+    # Julian-date conversion; omitting the leap-second table produces a 17 s
+    # rotation error at GW150914.
+    gps = np.asarray(gps, dtype=float)
+    leap_seconds = np.searchsorted(GPS_LEAP_THRESHOLDS, gps, side="right")
+    jd = (gps - leap_seconds) / 86400.0 + 2444244.5
     t = (jd - 2451545.0) / 36525.0
     degrees = 280.46061837 + 360.98564736629 * (jd - 2451545.0) + .000387933*t*t - t*t*t/38710000
     return np.deg2rad(np.mod(degrees, 360.0))
@@ -111,10 +126,45 @@ def response_earth(detector, ra, dec, psi, gps):
     cannot change an average over all directions.
     """
     d = DETECTORS[detector]
-    hour = gmst_from_gps(gps) + d.longitude - ra
-    theta = np.arccos(np.sin(d.latitude)*np.sin(dec) + np.cos(d.latitude)*np.cos(dec)*np.cos(hour))
-    phi = np.arctan2(np.cos(dec)*np.sin(hour), np.cos(d.latitude)*np.sin(dec)-np.sin(d.latitude)*np.cos(dec)*np.cos(hour)) - d.x_arm_azimuth
+    n = _celestial_to_ecef(ra, dec, gps)
+    east, north, up = _local_basis(d)
+    x_arm = np.sin(d.x_arm_azimuth) * east + np.cos(d.x_arm_azimuth) * north
+    y_arm = np.cos(d.x_arm_azimuth) * east - np.sin(d.x_arm_azimuth) * north
+    theta = np.arccos(np.clip(np.einsum("i...,i->...", n, up), -1.0, 1.0))
+    phi = np.arctan2(np.einsum("i...,i->...", n, y_arm),
+                     np.einsum("i...,i->...", n, x_arm))
     return response(theta, phi, psi)
+
+
+def _local_basis(detector):
+    """East, north, up unit vectors at a detector site in the Earth-fixed frame."""
+    lat, lon = detector.latitude, detector.longitude
+    east = np.array([-np.sin(lon), np.cos(lon), 0.0])
+    north = np.array([-np.sin(lat) * np.cos(lon),
+                      -np.sin(lat) * np.sin(lon), np.cos(lat)])
+    up = np.array([np.cos(lat) * np.cos(lon),
+                   np.cos(lat) * np.sin(lon), np.sin(lat)])
+    return east, north, up
+
+
+def _site_position(detector):
+    """WGS84 Earth-fixed position (m), including the site's elevation."""
+    a = 6378137.0
+    flattening = 1.0 / 298.257223563
+    eccentricity_squared = flattening * (2.0 - flattening)
+    sin_lat = np.sin(detector.latitude)
+    radius = a / np.sqrt(1.0 - eccentricity_squared * sin_lat**2)
+    x = (radius + detector.elevation) * np.cos(detector.latitude) * np.cos(detector.longitude)
+    y = (radius + detector.elevation) * np.cos(detector.latitude) * np.sin(detector.longitude)
+    z = (radius * (1.0 - eccentricity_squared) + detector.elevation) * sin_lat
+    return np.array([x, y, z])
+
+
+def _celestial_to_ecef(ra, dec, gps):
+    """Unit direction to a celestial source in the Earth-fixed frame."""
+    hour_angle = np.asarray(ra) - gmst_from_gps(gps)
+    return np.array([np.cos(dec) * np.cos(hour_angle),
+                     np.cos(dec) * np.sin(hour_angle), np.sin(dec)])
 
 
 def time_delay(det_a, det_b, ra, dec, gps):
@@ -128,9 +178,8 @@ def time_delay(det_a, det_b, ra, dec, gps):
         published localisation is a banana of about 600 square degrees, and the
         page has to say so in those words.
     """
-    def site(d):
-        r = 6371000.0 + d.elevation
-        return r*np.array([np.cos(d.latitude)*np.cos(d.longitude), np.cos(d.latitude)*np.sin(d.longitude), np.sin(d.latitude)])
     a, b = DETECTORS[det_a], DETECTORS[det_b]
-    n = np.array([np.cos(dec)*np.cos(ra), np.cos(dec)*np.sin(ra), np.sin(dec)])
-    return np.dot(site(b)-site(a), n) / k.C
+    # Site vectors are Earth-fixed.  A right ascension is fixed to the stars,
+    # so rotate it into that frame at the requested sidereal time first.
+    n = _celestial_to_ecef(ra, dec, gps)
+    return np.einsum("i,i...->...", _site_position(b) - _site_position(a), n) / k.C

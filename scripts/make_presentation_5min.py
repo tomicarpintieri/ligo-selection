@@ -4,6 +4,7 @@ The deck is deliberately short: slides 2--5 map one-to-one to the four items
 requested in the presentation brief.  Speaker notes contain a compact script.
 """
 
+import json
 from pathlib import Path
 
 from pptx import Presentation
@@ -15,6 +16,7 @@ from pptx.util import Inches, Pt
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "presentacion_final_ligo_5min.pptx"
+RESULTS = json.loads((ROOT / "results.json").read_text(encoding="utf-8"))
 
 NAVY = RGBColor(12, 24, 43)
 INK = RGBColor(32, 43, 57)
@@ -110,14 +112,14 @@ note(s, "45 s. La pregunta no es solamente si una fusión existe, sino qué tan 
 s = base_slide(prs, "2 · Resultado principal", "El horizonte óptimo sobrestima el alcance típico", "Para GW150914, la orientación y la posición en el cielo reducen fuertemente el volumen accesible.")
 rect(s, .82, 2.15, 3.78, 2.45, PALE_TEAL)
 add_text(s, "HORIZONTE ÓPTIMO", 1.1, 2.5, 3.22, .28, 11, INK, True, align=PP_ALIGN.CENTER)
-add_text(s, "1 969.9", 1.02, 2.95, 3.35, .62, 31, INK, True, align=PP_ALIGN.CENTER)
+add_text(s, f"{RESULTS['horizon_gw150914_mpc']:,.1f}", 1.02, 2.95, 3.35, .62, 31, INK, True, align=PP_ALIGN.CENTER)
 add_text(s, "Mpc", 1.02, 3.66, 3.35, .32, 16, INK, align=PP_ALIGN.CENTER)
 add_text(s, "mejor caso: fuente alineada", 1.02, 4.07, 3.35, .25, 10, INK, align=PP_ALIGN.CENTER)
-add_text(s, "÷ 2.2649", 4.82, 3.0, 3.55, .5, 27, ORANGE, True, align=PP_ALIGN.CENTER)
+add_text(s, f"÷ {RESULTS['horizon_over_range_factor']:.4f}", 4.82, 3.0, 3.55, .5, 27, ORANGE, True, align=PP_ALIGN.CENTER)
 add_text(s, "factor horizonte / rango", 4.82, 3.55, 3.55, .3, 12, MUTED, align=PP_ALIGN.CENTER)
 rect(s, 8.72, 2.15, 3.78, 2.45, PALE_ORANGE)
 add_text(s, "VOLUMEN EUCLÍDEO", 8.98, 2.5, 3.25, .28, 11, INK, True, align=PP_ALIGN.CENTER)
-add_text(s, "32.02", 8.92, 2.95, 3.35, .62, 31, INK, True, align=PP_ALIGN.CENTER)
+add_text(s, f"{RESULTS['sensitive_volume_gpc3']:.2f}", 8.92, 2.95, 3.35, .62, 31, INK, True, align=PP_ALIGN.CENTER)
 add_text(s, "Gpc³", 8.92, 3.66, 3.35, .32, 16, INK, align=PP_ALIGN.CENTER)
 add_text(s, "el volumen cambia como D³", 8.92, 4.07, 3.35, .25, 10, INK, align=PP_ALIGN.CENTER)
 rect(s, 1.13, 5.23, 11.05, .73, RGBColor(24, 47, 70))
@@ -128,22 +130,23 @@ note(s, "55 s. Este es el resultado central. El horizonte es el caso ideal; al p
 s = base_slide(prs, "3 · Validación", "Antes de estimar selección, recuperamos GW150914", "El mismo pipeline encuentra la señal conocida en datos reales de los dos detectores.")
 s.shapes.add_picture(str(ROOT / "figures" / "f01_snr_timeseries.png"), Inches(.83), Inches(2.05), width=Inches(7.25))
 for y, value, label, color in [
-    (2.25, "19.81", "SNR en H1", PALE_ORANGE),
-    (3.55, "13.54", "SNR en L1", PALE_TEAL),
-    (4.85, "−7.08 ms", "L1 llega antes", PALE_ORANGE),
+    (2.25, f"{RESULTS['h1_peak_snr']:.2f}", "SNR en H1", PALE_ORANGE),
+    (3.55, f"{RESULTS['l1_peak_snr']:.2f}", "SNR en L1", PALE_TEAL),
+    (4.85, f"{RESULTS['time_delay_l1_minus_h1_ms']:.2f} ms", "L1 llega antes", PALE_ORANGE),
 ]:
     rect(s, 8.55, y, 3.55, 1.02, color)
     add_text(s, value, 8.78, y+.15, 1.5, .38, 21, INK, True)
     add_text(s, label, 10.15, y+.18, 1.68, .3, 13, INK, align=PP_ALIGN.RIGHT)
-add_text(s, "Además: match de waveform frente a LAL = 1.000", 8.62, 6.18, 3.42, .35, 12, MUTED, True, align=PP_ALIGN.CENTER)
-note(s, "55 s. Mostrar el pico en ambos detectores. El test de control recupera SNR 19.81 en Hanford y 13.54 en Livingston, con el retraso esperado. También contrastamos nuestra waveform con LAL: match 1.000.")
+add_text(s, f"Además: match de waveform frente a LAL = {RESULTS['match_vs_lal']:.3f}", 8.62, 6.18, 3.42, .35, 12, MUTED, True, align=PP_ALIGN.CENTER)
+add_text(s, f"Máximo retardo geométrico H1–L1 = {RESULTS['h1_l1_light_travel_ms']:.3f} ms", 8.62, 6.52, 3.42, .28, 10, MUTED, align=PP_ALIGN.CENTER)
+note(s, "55 s. Mostrar el pico en ambos detectores. El test de control recupera SNR 19.81 en Hanford y 13.54 en Livingston, con el retraso esperado. También contrastamos nuestra waveform con LAL: match 1.000. La geometría de los sitios da un máximo de 10.013 ms; el retardo de este evento es menor y solo delimita un anillo en el cielo.")
 
 # 5. Experience
 s = base_slide(prs, "4 · Experiencia / aprendizaje", "La lección fue validar antes de inferir", "Cada afirmación importante quedó asociada a datos, una prueba y una limitación explícita.")
 for x, number, title, body, color in [
     (.85, "01", "Datos reproducibles", "strain y waveforms\nverificados con hash", PALE_TEAL),
-    (4.65, "02", "Tests antes que conclusiones", "39 controles automáticos\ny figuras regenerables", PALE_ORANGE),
-    (8.45, "03", "Límites declarados", "TaylorF2 subestima\nsistemas pesados", PALE_TEAL),
+    (4.65, "02", "Un fallo nos frenó", "el corte inspiral estaba\ndesactivado; lo detectó un test", PALE_ORANGE),
+    (8.45, "03", "No aflojamos el margen", "la varianza whitening\n0.442 se corrigió a 0.959", PALE_TEAL),
 ]:
     rect(s, x, 2.35, 3.0, 2.9, color)
     add_text(s, number, x+.28, 2.62, .7, .43, 22, TEAL, True)
@@ -151,7 +154,7 @@ for x, number, title, body, color in [
     add_text(s, body, x+.3, 3.97, 2.38, .68, 13, INK)
 rect(s, 1.25, 5.86, 10.7, .55, RGBColor(24, 47, 70))
 add_text(s, "Un resultado confiable no es solo un número: es un número que puede volver a producirse y discutirse.", 1.52, 5.97, 10.15, .3, 14, WHITE, True, align=PP_ALIGN.CENTER)
-note(s, "45 s. Esta fue la dificultad y el aprendizaje del proyecto: no aceptar un número solo porque parece razonable. El pipeline tiene datos hasheados, tests y procedencia. Una limitación importante: inspiral-only subestima la detectabilidad de sistemas pesados como GW150914.")
+note(s, "45 s. Esta fue la dificultad y el aprendizaje del proyecto: un test reveló que el corte de inspiral estaba apagado y otro que la normalización de whitening daba 0.442 en vez de 0.965. No se aflojó ningún margen: se buscó la causa y se llegó a 0.959. El pipeline tiene datos hasheados, tests y procedencia. TaylorF2 inspiral-only sigue siendo una limitación declarada.")
 
 # 6. Closing
 s = base_slide(prs, "Cierre", "Modelar la selección es el primer paso")

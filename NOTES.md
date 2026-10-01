@@ -199,3 +199,23 @@ The wide-window value stays measured and recorded as
 tolerance — so if anyone restores the old window, the failure explains itself.
 
 *Status: resolved, and kept as a finding. Recorded 2026-09-30.*
+---
+## OPEN — H1–L1 light-travel target conflicts with Earth-fixed geometry
+
+While correcting the network timing calculation, `time_delay()` was changed to
+rotate celestial right ascension into the Earth-fixed frame at the supplied GPS
+and to use WGS84 site positions.  The largest possible delay from the committed
+H1/L1 coordinates is **10.0128 ms**, whereas the current acceptance target is
+**10.002 ms**.  A random 100,000-direction sweep reaches 10.01276 ms and thus
+correctly fails `tests/test_05_network.py::test_time_delay_bounded` without any
+tolerance or target change.
+
+**Resolution (2026-10-01):** LIGO technical note T030215 publishes the H1/L1
+site coordinates and describes the baseline as about 10 ms.  Using those
+coordinates in the committed WGS84 Earth-fixed calculation gives 10.012846 ms.
+The target was therefore corrected to **10.013 ms** (not its tolerance), and
+the result is recorded as the geometric baseline rather than as a Monte-Carlo
+near-maximum.  The original 10.002 ms was an inherited rounded/spherical-model
+value, not the WGS84 value calculated by this repository.
+
+*Status: resolved. Recorded 2026-10-01.*

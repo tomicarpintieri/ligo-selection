@@ -134,6 +134,30 @@ def spa_inspiral(freqs, m1, m2, distance_mpc, inclination=0.0,
     return h_plus, h_cross
 
 
+def amplitude_mchirp_exponent(freqs, frequency=50.0, masses=None):
+    """Measure the SPA amplitude's chirp-mass power-law exponent.
+
+    This is deliberately a measurement of the implementation, rather than a
+    restatement of the 0PN value.  Equal-mass binaries spanning 5--50 solar
+    masses are evaluated at one in-band frequency and fitted in log space.
+    """
+    freqs = np.asarray(freqs, dtype=float)
+    if masses is None:
+        masses = np.linspace(5.0, 50.0, 25)
+    masses = np.asarray(masses, dtype=float)
+    if masses.ndim != 1 or masses.size < 2 or np.any(masses <= 0.0):
+        raise ValueError("masses must be a one-dimensional positive sample")
+    index = int(np.argmin(np.abs(freqs - frequency)))
+    if not np.isclose(freqs[index], frequency):
+        raise ValueError("requested frequency is not on the waveform grid")
+    amplitudes = np.array([
+        abs(spa_inspiral(freqs, mass, mass, 400.0)[0][index])
+        for mass in masses
+    ])
+    return float(np.polyfit(np.log(chirp_mass(masses, masses)),
+                            np.log(amplitudes), 1)[0])
+
+
 def match(h1, h2, psd, freqs, f_low, f_high):
     """Normalised overlap, maximised over time and phase. 1.0 is identical.
 
@@ -141,5 +165,9 @@ def match(h1, h2, psd, freqs, f_low, f_high):
     reuses filtering.matched_filter rather than restating the inner product.
     """
     from . import filtering
-    rho, sigma = filtering.matched_filter(h1, h2, psd, freqs, f_low, f_high)
-    return float(np.max(rho) / sigma)
+    rho, sigma_h2 = filtering.matched_filter(h1, h2, psd, freqs, f_low, f_high)
+    # matched_filter normalises by the template (its second argument).  An
+    # overlap needs both norms; obtain the first through the same tested filter
+    # instead of duplicating its PSD-weighted inner product here.
+    _, sigma_h1 = filtering.matched_filter(h1, h1, psd, freqs, f_low, f_high)
+    return float(np.max(rho) * sigma_h2 / (sigma_h1 * sigma_h2))

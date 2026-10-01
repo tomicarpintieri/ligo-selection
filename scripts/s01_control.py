@@ -90,10 +90,18 @@ def main():
         ("h1_peak_snr", "Peak IMRPhenomD matched-filter SNR in H1.", "src/gwsel/filtering.py::peak"),
         ("l1_peak_snr", "Peak IMRPhenomD matched-filter SNR in L1.", "src/gwsel/filtering.py::peak"),
         ("h1_sigma", "Template norm sqrt(<h|h>) against the H1 PSD.", "src/gwsel/filtering.py::matched_filter"),
+        ("h1_peak_gps", "GPS time of the H1 matched-filter peak.", "src/gwsel/filtering.py::search"),
+        ("l1_peak_gps", "GPS time of the L1 matched-filter peak.", "src/gwsel/filtering.py::search"),
         ("time_delay_ms", "L1 arrival time minus H1 arrival time, in ms.", "src/gwsel/filtering.py::search"),
+        ("time_delay_l1_minus_h1_ms", "L1 arrival time minus H1 arrival time, in ms.", "src/gwsel/filtering.py::search"),
         ("welch_vs_gwpy_pct", "Median relative PSD difference from gwpy, in percent.", "src/gwsel/psd.py::welch_median"),
+        ("whitened_variance", "Variance of the tapered, one-sided-PSD-whitened H1 control segment.", "src/gwsel/filtering.py::whiten"),
         ("background_mean_rho2", "Mean rho squared in independent off-source H1 samples.", "scripts/s01_control.py::background_statistics"),
+        ("background_rho2_sem", "Standard error of mean rho squared in independent off-source H1 samples.", "scripts/s01_control.py::background_statistics"),
         ("background_loudest_rho", "Loudest matched-filter SNR in the off-source H1 windows.", "scripts/s01_control.py::background_statistics"),
+        ("background_gaussian_expected_loudest_rho", "Gaussian expectation used to contextualize the loudest background SNR.", "scripts/s01_control.py::background_statistics"),
+        ("background_samples", "Number of independent off-source rho-squared samples.", "scripts/s01_control.py::background_statistics"),
+        ("background_windows", "Number of off-source analysis windows.", "scripts/s01_control.py::background_statistics"),
     ):
         source_key = "time_delay_l1_minus_h1_ms" if slug == "time_delay_ms" else slug
         pv.record_number(slug, values[source_key], statement, producer,

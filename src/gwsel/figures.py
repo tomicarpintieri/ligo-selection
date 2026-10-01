@@ -16,6 +16,7 @@ import matplotlib
 
 matplotlib.use("Agg")           # no display; this has to run headless
 import matplotlib.pyplot as plt  # noqa: E402
+from matplotlib.animation import FuncAnimation, PillowWriter  # noqa: E402
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 FIGDIR = ROOT / "figures"
@@ -98,3 +99,90 @@ def f03_horizon_vs_mchirp(mchirp, distance, gw_mc, gw_distance):
            title="Horizon versus chirp mass (Euclidean)")
     ax.legend()
     return save(fig, "f03_horizon_vs_mchirp.png")
+
+
+def _sky_grid(n_ra=241, n_dec=121):
+    """Regular celestial grid, returned in Mollweide plotting coordinates."""
+    ra = np.linspace(0.0, 2.0 * np.pi, n_ra)
+    dec = np.linspace(-np.pi / 2.0, np.pi / 2.0, n_dec)
+    ra, dec = np.meshgrid(ra, dec)
+    return ra, dec, (ra + np.pi) % (2.0 * np.pi) - np.pi
+
+
+def f04_antenna_pattern():
+    """Detector-frame total response, including the four geometric nulls."""
+    from . import antenna
+    phi = np.linspace(-np.pi, np.pi, 241)
+    latitude = np.linspace(-np.pi / 2.0, np.pi / 2.0, 121)
+    phi, latitude = np.meshgrid(phi, latitude)
+    theta = np.pi / 2.0 - latitude
+    f_plus, f_cross = antenna.response(theta, phi, 0.0)
+    power = f_plus**2 + f_cross**2
+    fig, ax = plt.subplots(figsize=(8.5, 4.8), subplot_kw={"projection": "mollweide"})
+    image = ax.pcolormesh(phi, latitude, power, shading="auto", cmap="viridis", vmin=0, vmax=1)
+    nulls = np.array([np.pi / 4.0, 3 * np.pi / 4.0, -3 * np.pi / 4.0, -np.pi / 4.0])
+    ax.scatter(nulls, np.zeros(4), marker="x", color="white", s=42, label="four exact nulls")
+    ax.grid(True, color="white", alpha=.35)
+    ax.set_title("Detector-frame antenna response")
+    ax.legend(loc="lower left")
+    fig.colorbar(image, ax=ax, orientation="horizontal", pad=.1, label=r"$F_+^2+F_\times^2$")
+    return save(fig, "f04_antenna_pattern.png")
+
+
+def _network_power(ra, dec, gps):
+    from . import antenna
+    h_plus, h_cross = antenna.response_earth("H1", ra, dec, 0.0, gps)
+    l_plus, l_cross = antenna.response_earth("L1", ra, dec, 0.0, gps)
+    h1 = h_plus**2 + h_cross**2
+    l1 = l_plus**2 + l_cross**2
+    return h1, l1, h1 + l1
+
+
+def f05_network_skymap(gps, observed_delay_ms=-7.080):
+    """H1, L1 and summed response in celestial coordinates at one GPS time."""
+    from . import antenna
+    ra, dec, lon = _sky_grid()
+    h1, l1, network = _network_power(ra, dec, gps)
+    delay = antenna.time_delay("H1", "L1", ra, dec, gps) * 1000.0
+    fig, axes = plt.subplots(1, 3, figsize=(12, 4.2), subplot_kw={"projection": "mollweide"})
+    for ax, power, title in zip(axes, (h1, l1, network), ("H1", "L1", "H1 + L1 network")):
+        image = ax.pcolormesh(lon, dec, power, shading="auto", cmap="magma", vmin=0, vmax=1)
+        ax.contour(lon, dec, delay, levels=[observed_delay_ms], colors="cyan", linewidths=1.0)
+        ax.set_title(title)
+        ax.grid(True, color="white", alpha=.3)
+    fig.colorbar(image, ax=axes, orientation="horizontal", pad=.1, label="polarization-independent response power")
+    fig.text(.5, .01, "Cyan: directions consistent with Δt = −7.08 ms (a ring, not a localisation).", ha="center", color=INK)
+    return save(fig, "f05_network_skymap.png")
+
+
+def f06_rotation(gps, frames=24):
+    """Save a 24-hour network sweep as GIF plus four static reference frames."""
+    ra, dec, lon = _sky_grid(181, 91)
+    sidereal_hour = 86164.0905 / 24.0
+    times = gps + np.arange(frames) * sidereal_hour
+    powers = [_network_power(ra, dec, time)[2] for time in times]
+
+    fig, ax = plt.subplots(figsize=(7.5, 4.4), subplot_kw={"projection": "mollweide"})
+    image = ax.pcolormesh(lon, dec, powers[0], shading="auto", cmap="magma", vmin=0, vmax=1)
+    ax.grid(True, color="white", alpha=.3)
+    title = ax.set_title("H1 + L1 response — sidereal hour 0")
+    colorbar = fig.colorbar(image, ax=ax, orientation="horizontal", pad=.12, label="network response power")
+
+    def update(index):
+        image.set_array(powers[index].ravel())
+        title.set_text(f"H1 + L1 response — sidereal hour {index:02d}")
+        return image, title
+
+    animation = FuncAnimation(fig, update, frames=frames, interval=180, blit=False)
+    FIGDIR.mkdir(parents=True, exist_ok=True)
+    animation.save(FIGDIR / "f06_rotation.gif", writer=PillowWriter(fps=6))
+    plt.close(fig)
+
+    panel_figure, axes = plt.subplots(2, 2, figsize=(9, 6.2), subplot_kw={"projection": "mollweide"})
+    for ax, index in zip(axes.ravel(), (0, frames // 4, frames // 2, 3 * frames // 4)):
+        image = ax.pcolormesh(lon, dec, powers[index], shading="auto", cmap="magma", vmin=0, vmax=1)
+        ax.set_title(f"sidereal hour {index:02d}")
+        ax.grid(True, color="white", alpha=.3)
+    panel_figure.colorbar(image, ax=axes.ravel().tolist(), orientation="horizontal", pad=.08, label="network response power")
+    panels = save(panel_figure, "f06_rotation_panels.png")
+    return "figures/f06_rotation.gif", panels
