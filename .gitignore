@@ -20,3 +20,6 @@ logs/*
 
 # Local build dependency used only to generate the presentation.
 .ppt_build/
+
+# Local review material supplied outside the reproducible analysis.
+Auditoria codex sobre ondas gravitacionales.pdf
