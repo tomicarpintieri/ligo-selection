@@ -127,8 +127,24 @@ repository.
 Before presenting or handing the repository to a new agent, run
 `.venv\Scripts\python.exe scripts\reproduce.py`, confirm that it creates
 `artifacts/reproduction.json`, and inspect `page/index.html`. The presentation is versioned at the repository root.
-The presentation PDF must be exported from that PPTX on a machine with an Office
-or LibreOffice renderer; no such renderer is installed in this environment.
+
+The presentation PDFs are committed alongside the decks, because the assignment
+asks for a page **and** a PDF to present from. A PPTX is not a PDF: it reflows
+on a machine with different fonts, so the committed PDF is what a reader
+actually gets. To regenerate after editing a deck, with PowerPoint:
+
+```powershell
+$app = New-Object -ComObject PowerPoint.Application
+$p = $app.Presentations.Open("$PWD\presentacion_final_ligo_5min_v2.pptx", $true, $false, $false)
+$p.SaveAs("$PWD\presentacion_final_ligo_5min_v2.pdf", 32)   # 32 = ppSaveAsPDF
+$p.Close(); $app.Quit()
+```
+
+or, with LibreOffice on any platform:
+
+```
+soffice --headless --convert-to pdf presentacion_final_ligo_5min_v2.pptx
+```
 
 `pytest -q` is the one command that says whether this repository is sane. Every
 claim made anywhere in it is pinned by a test, and every test's target value is
