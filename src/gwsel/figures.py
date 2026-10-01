@@ -43,7 +43,11 @@ def save(fig, name):
     so pass it straight to provenance.record_figure().
     """
     FIGDIR.mkdir(parents=True, exist_ok=True)
-    fig.tight_layout()
+    # tight_layout fights fig.colorbar(ax=...): it re-lays out the axes over the
+    # space the colorbar reserved, which drew the bar across the sky maps in
+    # f05 and f06. A figure that already declares a layout engine keeps it.
+    if fig.get_layout_engine() is None:
+        fig.tight_layout()
     fig.savefig(FIGDIR / name, bbox_inches="tight", facecolor="white")
     plt.close(fig)
     print(f"  figures/{name}")
@@ -103,10 +107,15 @@ def f03_horizon_vs_mchirp(mchirp, distance, gw_mc, gw_distance):
 
 def _sky_grid(n_ra=241, n_dec=121):
     """Regular celestial grid, returned in Mollweide plotting coordinates."""
-    ra = np.linspace(0.0, 2.0 * np.pi, n_ra)
+    # Mollweide plots longitude on [-pi, pi]. Building ra on [0, 2pi] and
+    # wrapping it afterwards gives a grid that is not monotonic, and pcolormesh
+    # drew a hard seam down the middle of every sky map. Build the plotting
+    # longitude first; right ascension only ever enters as (ra - gmst), so a
+    # shift of 2 pi is physically irrelevant.
+    lon = np.linspace(-np.pi, np.pi, n_ra)
     dec = np.linspace(-np.pi / 2.0, np.pi / 2.0, n_dec)
-    ra, dec = np.meshgrid(ra, dec)
-    return ra, dec, (ra + np.pi) % (2.0 * np.pi) - np.pi
+    lon, dec = np.meshgrid(lon, dec)
+    return lon, dec, lon
 
 
 def f04_antenna_pattern():
@@ -118,13 +127,16 @@ def f04_antenna_pattern():
     theta = np.pi / 2.0 - latitude
     f_plus, f_cross = antenna.response(theta, phi, 0.0)
     power = f_plus**2 + f_cross**2
-    fig, ax = plt.subplots(figsize=(8.5, 4.8), subplot_kw={"projection": "mollweide"})
+    fig, ax = plt.subplots(figsize=(8.5, 4.8), layout="constrained",
+                           subplot_kw={"projection": "mollweide"})
     image = ax.pcolormesh(phi, latitude, power, shading="auto", cmap="viridis", vmin=0, vmax=1)
     nulls = np.array([np.pi / 4.0, 3 * np.pi / 4.0, -3 * np.pi / 4.0, -np.pi / 4.0])
     ax.scatter(nulls, np.zeros(4), marker="x", color="white", s=42, label="four exact nulls")
     ax.grid(True, color="white", alpha=.35)
     ax.set_title("Detector-frame antenna response")
-    ax.legend(loc="lower left")
+    # below the ellipse, not on it: inside the axes the label landed on the
+    # -75 degree gridline annotation
+    ax.legend(loc="upper center", bbox_to_anchor=(.5, -.01), frameon=False)
     fig.colorbar(image, ax=ax, orientation="horizontal", pad=.1, label=r"$F_+^2+F_\times^2$")
     return save(fig, "f04_antenna_pattern.png")
 
@@ -144,14 +156,18 @@ def f05_network_skymap(gps, observed_delay_ms=-7.080):
     ra, dec, lon = _sky_grid()
     h1, l1, network = _network_power(ra, dec, gps)
     delay = antenna.time_delay("H1", "L1", ra, dec, gps) * 1000.0
-    fig, axes = plt.subplots(1, 3, figsize=(12, 4.2), subplot_kw={"projection": "mollweide"})
+    fig, axes = plt.subplots(1, 3, figsize=(13, 4.6), layout="constrained",
+                             subplot_kw={"projection": "mollweide"})
     for ax, power, title in zip(axes, (h1, l1, network), ("H1", "L1", "H1 + L1 network")):
         image = ax.pcolormesh(lon, dec, power, shading="auto", cmap="magma", vmin=0, vmax=1)
         ax.contour(lon, dec, delay, levels=[observed_delay_ms], colors="cyan", linewidths=1.0)
         ax.set_title(title)
         ax.grid(True, color="white", alpha=.3)
     fig.colorbar(image, ax=axes, orientation="horizontal", pad=.1, label="polarization-independent response power")
-    fig.text(.5, .01, "Cyan: directions consistent with Δt = −7.08 ms (a ring, not a localisation).", ha="center", color=INK)
+    # supxlabel, not fig.text: constrained layout reserves room for it, so the
+    # caption cannot land on top of the colorbar.
+    fig.supxlabel("Cyan: directions consistent with the −7.08 ms delay — a ring, "
+                  "not a localisation.", fontsize=10, color=MUTED)
     return save(fig, "f05_network_skymap.png")
 
 
@@ -162,7 +178,8 @@ def f06_rotation(gps, frames=24):
     times = gps + np.arange(frames) * sidereal_hour
     powers = [_network_power(ra, dec, time)[2] for time in times]
 
-    fig, ax = plt.subplots(figsize=(7.5, 4.4), subplot_kw={"projection": "mollweide"})
+    fig, ax = plt.subplots(figsize=(7.5, 4.6), layout="constrained",
+                           subplot_kw={"projection": "mollweide"})
     image = ax.pcolormesh(lon, dec, powers[0], shading="auto", cmap="magma", vmin=0, vmax=1)
     ax.grid(True, color="white", alpha=.3)
     title = ax.set_title("H1 + L1 response — sidereal hour 0")
@@ -178,7 +195,8 @@ def f06_rotation(gps, frames=24):
     animation.save(FIGDIR / "f06_rotation.gif", writer=PillowWriter(fps=6))
     plt.close(fig)
 
-    panel_figure, axes = plt.subplots(2, 2, figsize=(9, 6.2), subplot_kw={"projection": "mollweide"})
+    panel_figure, axes = plt.subplots(2, 2, figsize=(9.5, 6.4), layout="constrained",
+                                      subplot_kw={"projection": "mollweide"})
     for ax, index in zip(axes.ravel(), (0, frames // 4, frames // 2, 3 * frames // 4)):
         image = ax.pcolormesh(lon, dec, powers[index], shading="auto", cmap="magma", vmin=0, vmax=1)
         ax.set_title(f"sidereal hour {index:02d}")

@@ -52,22 +52,23 @@ claims:
   - horizon_fit_window_max_mchirp
   - horizon_peak_mchirp
   - horizon_peak_mpc
-- id: detector_has_blind_spots
-  statement: An L-shaped detector has four exact geometric blind directions in its detector
-    frame.
+- id: injection_pilot_measures_selection
+  statement: A reproducible H1–L1 injection-and-recovery pilot measures detection efficiency
+    as a function of distance for an isotropic population.
   evidence:
-  - tests/test_04_antenna.py
+  - tests/test_07_injections.py
+  - scripts/s06_injections.py
   numbers:
-  - sky_mean_fplus_squared
-  - sky_mean_fcross_squared
-- id: range_is_2p26_below_horizon
-  statement: The volume-equivalent detector range is 2.2649 times smaller than its optimally
-    oriented horizon.
+  - injection_count
+  - injection_recovery_fraction
+  - injection_mean_network_snr
+- id: injection_pilot_is_inspiral_only
+  statement: 'The pilot is not an IMR population campaign: it uses the validated SPA inspiral
+    waveform and therefore remains conservative for heavy systems.'
   evidence:
-  - tests/test_04_antenna.py
-  numbers:
-  - horizon_over_range_factor
-  - rms_projection_factor
+  - TASKS/day-2-waveform.md
+  - src/gwsel/injections.py
+  numbers: []
 - id: network_covers_the_blind_spots
   statement: The combined H1–L1 response has no common blind direction on the sampled sky.
   evidence:
@@ -88,23 +89,22 @@ claims:
   numbers:
   - time_delay_l1_minus_h1_ms
   - h1_l1_light_travel_ms
-- id: injection_pilot_measures_selection
-  statement: A reproducible H1–L1 injection-and-recovery pilot measures detection efficiency
-    as a function of distance for an isotropic population.
+- id: detector_has_blind_spots
+  statement: An L-shaped detector has four exact geometric blind directions in its detector
+    frame.
   evidence:
-  - tests/test_07_injections.py
-  - scripts/s06_injections.py
+  - tests/test_04_antenna.py
   numbers:
-  - injection_count
-  - injection_recovery_fraction
-  - injection_mean_network_snr
-- id: injection_pilot_is_inspiral_only
-  statement: 'The pilot is not an IMR population campaign: it uses the validated SPA inspiral
-    waveform and therefore remains conservative for heavy systems.'
+  - sky_mean_fplus_squared
+  - sky_mean_fcross_squared
+- id: range_is_2p26_below_horizon
+  statement: The volume-equivalent detector range is 2.2649 times smaller than its optimally
+    oriented horizon.
   evidence:
-  - TASKS/day-2-waveform.md
-  - src/gwsel/injections.py
-  numbers: []
+  - tests/test_04_antenna.py
+  numbers:
+  - horizon_over_range_factor
+  - rms_projection_factor
 figures:
 - file: figures/f01_snr_timeseries.png
   produced_by: src/gwsel/figures.py::f01_snr_timeseries
@@ -156,21 +156,23 @@ figures:
   supports:
   - threshold_is_a_distance
   - selection_tilts_towards_heavy
-- file: figures/f04_antenna_pattern.png
-  produced_by: src/gwsel/figures.py::f04_antenna_pattern
-  shows: Detector-frame antenna response and its four exact null directions.
-  from_scratch: Evaluated the analytic antenna pattern on a regular angular grid.
+- file: figures/f07_injection_efficiency.png
+  produced_by: src/gwsel/figures.py::f07_injection_efficiency
+  shows: Binned H1–L1 recovery efficiency against injected distance.
+  from_scratch: Injected and recovered an isotropic source population in off-source strain.
   from_library: matplotlib.
   choices:
-  - 4,000,000 Monte-Carlo samples
-  - random seed 0
-  - theta measured from detector zenith
-  - phi measured from the x arm
-  - psi as polarization angle
-  - uniform cos(theta) for isotropic sky sampling
+  - 96 injections
+  - population seed 20261001
+  - noise-window seed 20261002
+  - uniform component masses 5–20 Msun
+  - uniform-in-volume distances 100–600 Mpc
+  - isotropic sky, polarization and inclination
+  - SPA inspiral-only waveform
+  - incoherent quadrature network SNR
+  - network threshold 8
   supports:
-  - detector_has_blind_spots
-  - range_is_2p26_below_horizon
+  - injection_pilot_measures_selection
 - file: figures/f05_network_skymap.png
   produced_by: src/gwsel/figures.py::f05_network_skymap
   shows: H1, L1 and combined celestial response, with the −7.08 ms timing ring.
@@ -217,20 +219,18 @@ figures:
   - 24 sidereal-hour frames
   supports:
   - detectability_depends_on_time_of_day
-- file: figures/f07_injection_efficiency.png
-  produced_by: src/gwsel/figures.py::f07_injection_efficiency
-  shows: Binned H1–L1 recovery efficiency against injected distance.
-  from_scratch: Injected and recovered an isotropic source population in off-source strain.
+- file: figures/f04_antenna_pattern.png
+  produced_by: src/gwsel/figures.py::f04_antenna_pattern
+  shows: Detector-frame antenna response and its four exact null directions.
+  from_scratch: Evaluated the analytic antenna pattern on a regular angular grid.
   from_library: matplotlib.
   choices:
-  - 96 injections
-  - population seed 20261001
-  - noise-window seed 20261002
-  - uniform component masses 5–20 Msun
-  - uniform-in-volume distances 100–600 Mpc
-  - isotropic sky, polarization and inclination
-  - SPA inspiral-only waveform
-  - incoherent quadrature network SNR
-  - network threshold 8
+  - 4,000,000 Monte-Carlo samples
+  - random seed 0
+  - theta measured from detector zenith
+  - phi measured from the x arm
+  - psi as polarization angle
+  - uniform cos(theta) for isotropic sky sampling
   supports:
-  - injection_pilot_measures_selection
+  - detector_has_blind_spots
+  - range_is_2p26_below_horizon

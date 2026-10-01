@@ -90,10 +90,24 @@ py -3.12 -m venv .venv-presentation
 This writes `presentacion_final_ligo_5min.pptx`. Its speaker notes and the
 timed delivery guide are included with the repository.
 
+**Two decks exist on purpose.** `scripts/make_presentation_v2.py` builds
+`presentacion_final_ligo_5min_v2.pptx`: the same talk and the same argument,
+laid out light instead of navy and led by the figures rather than by numbers
+alone. It adds no content to the argument — it moves the antenna pattern onto
+the main-result slide, which that figure explains; gives the sidereal sweep a
+slide of its own, because it is the mechanism behind the result; and sharpens
+the learning slide to name what actually happened. Both decks are kept until one
+is chosen, and neither script touches the other's output.
+
+```powershell
+.venv-presentation\Scripts\python.exe scripts\make_presentation_v2.py
+```
+
 ## Deliverables and current scope
 
 - `page/index.html`: self-contained Spanish summary for a general audience.
-- `presentacion_final_ligo_5min.pptx`: final five-minute oral presentation.
+- `presentacion_final_ligo_5min.pptx` and `..._v2.pptx`: two layouts of the same
+  five-minute talk, kept side by side for comparison.
 - `figures/f04_antenna_pattern.png`, `f05_network_skymap.png`, and
   `f06_rotation.gif`: detector response, celestial H1--L1 network response,
   and its sidereal-day sweep.
