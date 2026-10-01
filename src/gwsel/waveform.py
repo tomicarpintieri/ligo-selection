@@ -140,6 +140,9 @@ def amplitude_mchirp_exponent(freqs, frequency=50.0, masses=None):
     This is deliberately a measurement of the implementation, rather than a
     restatement of the 0PN value.  Equal-mass binaries spanning 5--50 solar
     masses are evaluated at one in-band frequency and fitted in log space.
+    The cutoff is explicitly disabled: this isolates the 0PN amplitude law;
+    applying a mass-dependent ISCO cutoff would turn valid measurements into
+    zero amplitude for the high-mass end of this deliberately broad sample.
     """
     freqs = np.asarray(freqs, dtype=float)
     if masses is None:
@@ -151,7 +154,7 @@ def amplitude_mchirp_exponent(freqs, frequency=50.0, masses=None):
     if not np.isclose(freqs[index], frequency):
         raise ValueError("requested frequency is not on the waveform grid")
     amplitudes = np.array([
-        abs(spa_inspiral(freqs, mass, mass, 400.0)[0][index])
+        abs(spa_inspiral(freqs, mass, mass, 400.0, f_cut=None)[0][index])
         for mass in masses
     ])
     return float(np.polyfit(np.log(chirp_mass(masses, masses)),

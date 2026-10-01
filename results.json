@@ -17,7 +17,7 @@
   "horizon_band_fixed_tolerance": 0.999,
   "horizon_fit_window_max_mchirp": 2.3852478812533207,
   "horizon_gw150914_mpc": 1969.8565304986864,
-  "horizon_mchirp_exponent": 0.8313696686793761,
+  "horizon_mchirp_exponent": 0.8313696686793794,
   "horizon_mchirp_exponent_brief_window": 0.8219410348724752,
   "horizon_over_range_factor": 2.2648696135184156,
   "horizon_peak_mchirp": 27.79805281766254,

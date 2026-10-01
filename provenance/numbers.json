@@ -8,7 +8,8 @@
       "20-300 Hz match band",
       "Blanchet 2014 TaylorF2 coefficients",
       "25 equal-mass binaries from 5 to 50 solar masses",
-      "amplitude sampled at 50 Hz"
+      "amplitude sampled at 50 Hz",
+      "no ISCO cutoff, to isolate the amplitude power law"
     ],
     "from_library": "numpy.polyfit.",
     "from_scratch": "Generated the SPA waveforms and fit their amplitude scaling.",
@@ -280,7 +281,7 @@
     "from_scratch": "Implemented the SNR-distance-volume chain, the horizon curve, and the band-fixed criterion the fit window is derived from.",
     "produced_by": "scripts/s03_horizon.py::power_law_exponent",
     "statement": "Power-law slope of horizon distance against chirp mass, over the derived fixed-band window.",
-    "value": 0.8313696686793761
+    "value": 0.8313696686793794
   },
   "horizon_mchirp_exponent_brief_window": {
     "choices": [
@@ -297,6 +298,21 @@
     "produced_by": "scripts/s03_horizon.py::power_law_exponent",
     "statement": "The same slope over the day-3 brief's [1.5, 5] Msun window, which is too wide for the band to count as fixed.",
     "value": 0.8219410348724752
+  },
+  "horizon_over_range_factor": {
+    "choices": [
+      "4,000,000 Monte-Carlo samples",
+      "random seed 0",
+      "theta measured from detector zenith",
+      "phi measured from the x arm",
+      "psi as polarization angle",
+      "uniform cos(theta) for isotropic sky sampling"
+    ],
+    "from_library": "numpy random generator.",
+    "from_scratch": "Sampled the detector-frame antenna response and source inclination.",
+    "produced_by": "scripts/s04_antenna.py::antenna_averages",
+    "statement": "horizon_over_range_factor",
+    "value": 2.2648696135184156
   },
   "horizon_peak_mchirp": {
     "choices": [
@@ -329,21 +345,6 @@
     "produced_by": "src/gwsel/horizon.py::horizon_curve",
     "statement": "Horizon distance at that turnover, in Mpc.",
     "value": 1328.9385090147384
-  },
-  "horizon_over_range_factor": {
-    "choices": [
-      "4,000,000 Monte-Carlo samples",
-      "random seed 0",
-      "theta measured from detector zenith",
-      "phi measured from the x arm",
-      "psi as polarization angle",
-      "uniform cos(theta) for isotropic sky sampling"
-    ],
-    "from_library": "numpy random generator.",
-    "from_scratch": "Sampled the detector-frame antenna response and source inclination.",
-    "produced_by": "scripts/s04_antenna.py::antenna_averages",
-    "statement": "horizon_over_range_factor",
-    "value": 2.2648696135184156
   },
   "l1_peak_gps": {
     "choices": [

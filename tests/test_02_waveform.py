@@ -14,6 +14,9 @@ def test_f_isco_gw150914(r): assert r['f_isco_gw150914']==pytest.approx(61,abs=.
 def test_amplitude_mchirp_exponent(r):
     assert r['amplitude_mchirp_exponent'] == pytest.approx(5 / 6, abs=.001)
 
+def test_amplitude_mchirp_exponent_uses_full_frequency_grid(grid):
+    assert waveform.amplitude_mchirp_exponent(grid['freqs']) == pytest.approx(5 / 6, abs=.001)
+
 def test_match_beats_0pn(waveforms, psd_h1):
     freqs = waveforms['freqs']
     h35, _ = waveform.spa_inspiral(freqs, 38.8, 33.35, 400.0, pn_order=3.5)
